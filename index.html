@@ -273,7 +273,8 @@
             let container = document.getElementById(containerId);
             container.innerHTML = ''; // Clear the container before adding items
             items.forEach(item => {
-                let timeWithSpeedup = applySpeedup(item.time, type);
+                const parsedTime = parseTimeString(item.time);
+                let timeWithSpeedup = applySpeedup(parsedTime, type);
                 let div = document.createElement('div');
                 div.innerHTML = `<p><strong>${item.name} (Level ${item.level})</strong></p>
                     <div class="item-icons">
@@ -284,6 +285,18 @@
                     <button onclick="addToBasket('${type}', '${item.name}', ${item.level})">Add to Plan</button>`;
                 container.appendChild(div);
             });
+        }
+
+        function parseTimeString(timeString) {
+            const timeParts = timeString.match(/(\d+)d (\d+):(\d+):(\d+)/);
+            if (!timeParts) return 0;
+
+            const days = parseInt(timeParts[1]) || 0;
+            const hours = parseInt(timeParts[2]) || 0;
+            const minutes = parseInt(timeParts[3]) || 0;
+            const seconds = parseInt(timeParts[4]) || 0;
+
+            return (days * 86400) + (hours * 3600) + (minutes * 60) + seconds;
         }
 
         function applySpeedup(time, type) {
@@ -301,60 +314,106 @@
             return `${days}d ${hours}h ${minutes}m ${seconds}s`;
         }
 
-        function addToBasket(type, name, level) {
-            let quantity = 1;
-            if (type === 'infantry') {
-                quantity = parseInt(prompt('Enter number of troops to add:', '1')) || 1;
-            }
-            basket.push({ type, name, level, quantity });
+        function updateBasketSummary() {
+            let basketList = document.getElementById('basket-list');
+            basketList.innerHTML = '';
+            let totalItems = {};
+            let totalCosts = {};
+            let totalPower = 0;
+            let totalTime = 0;
+        
+            basket.forEach((item, index) => {
+                let adjustedTime = calculateAdjustedTime(item.time, item.type);
+                let listItem = document.createElement('li');
+                listItem.innerHTML = `${item.type}: ${item.name} (Level ${item.level})
+                    <button onclick="removeFromPlan(${index})">Remove from Plan</button>`;
+                basketList.appendChild(listItem);
+        
+                // Calculate total items, costs, power, and time
+                if (!totalItems[item.type]) {
+                    totalItems[item.type] = 0;
+                }
+                totalItems[item.type] += 1;
+        
+                for (let key in item.build_cost) {
+                    if (!totalCosts[key]) {
+                        totalCosts[key] = 0;
+                    }
+                    totalCosts[key] += item.build_cost[key];
+                }
+                totalPower += item.power;
+                totalTime += parseTimeToSeconds(adjustedTime);
+            });
+        
+            let basketSummary = document.getElementById('basket-summary');
+            basketSummary.textContent = `Total items in plan: ${basket.length}`;
+        
+            let subtotalText = `Subtotal: `;
+            subtotalText += Object.keys(totalCosts).map(key => 
+                `<img src='./images/${key}.png' alt='${key}' title='${key}' style='width: 20px; height: 20px;'> ${totalCosts[key]}`
+            ).join(' ');
+            subtotalText += ` | Total Power: ${totalPower} | Total Time: ${formatTime(totalTime)}`;
+        
+            let basketSubtotal = document.getElementById('basket-subtotal');
+            basketSubtotal.innerHTML = subtotalText;
+        }
+
+        function removeFromPlan(index) {
+            basket.splice(index, 1);
             localStorage.setItem('basket', JSON.stringify(basket));
             updateBasketSummary();
+        }
+
+        function toggleBasket() {
+            const basket = document.getElementById('shopping-basket');
+            basket.style.display = basket.style.display === 'none' || basket.style.display === '' ? 'block' : 'none';
+        }
+
+        function parseTimeToSeconds(time) {
+            if (!time) return 0;
+
+            // Split day part from the time if present
+            let [dayPart, timePart] = time.split('d ');
+            let days = parseInt(dayPart) || 0;
+
+            let hours = 0, minutes = 0, seconds = 0;
+            if (timePart) {
+                const timeParts = timePart.split(':');
+                if (timeParts.length === 3) {
+                    hours = parseInt(timeParts[0]) || 0;
+                    minutes = parseInt(timeParts[1]) || 0;
+                    seconds = parseInt(timeParts[2]) || 0;
+                }
+            }
+
+            // Calculate total seconds
+            return days * 86400 + hours * 3600 + minutes * 60 + seconds;
+        }
+
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return 'N/A';
+            const days = Math.floor(seconds / 86400);
+            seconds %= 86400;
+            const hours = Math.floor(seconds / 3600);
+            seconds %= 3600;
+            const minutes = Math.floor(seconds / 60);
+            seconds %= 60;
+            return `${days}d ${hours}h ${minutes}m ${seconds}s`;
+        }
+
+        function calculateAdjustedTime(time, type) {
+            if (!time) return 'N/A';
+            let timeInSeconds = parseTimeToSeconds(time);
+            let speedup = speedupValues[type] / 100;
+            let adjustedTimeInSeconds = timeInSeconds / (1 + speedup);
+            return formatTime(adjustedTimeInSeconds);
         }
 
         function storeSpeedup(type) {
             let value = parseFloat(document.getElementById(`${type}-speedup`).value) || 0;
             speedupValues[type] = value;
             localStorage.setItem(`${type}_speedup`, value);
-            fetchData(); // Re-fetch data to apply speedup
-        }
-
-        function toggleBasket() {
-            let basketElement = document.getElementById('shopping-basket');
-            basketElement.style.display = basketElement.style.display === 'none' ? 'block' : 'none';
             updateBasketSummary();
-        }
-
-        function updateBasketSummary() {
-            let basketList = document.getElementById('basket-list');
-            basketList.innerHTML = '';
-            let totalResources = {};
-            let totalTime = 0;
-
-            basket.forEach(item => {
-                let listItem = document.createElement('li');
-                listItem.textContent = `${item.type}: ${item.name} (Level ${item.level}) x ${item.quantity}`;
-                basketList.appendChild(listItem);
-
-                // Update total resources and time
-                fetch(`./data/${item.type}.json`)
-                    .then(response => response.json())
-                    .then(data => {
-                        let matchedItem = data.find(d => d.name === item.name && d.level === item.level);
-                        if (matchedItem) {
-                            Object.keys(matchedItem.build_cost).forEach(resource => {
-                                if (!totalResources[resource]) {
-                                    totalResources[resource] = 0;
-                                }
-                                totalResources[resource] += matchedItem.build_cost[resource] * item.quantity;
-                            });
-                            totalTime += applySpeedup(matchedItem.time, item.type) * item.quantity;
-                            document.getElementById('basket-subtotal').textContent = `Total Time: ${formatTime(totalTime)}`;
-                        }
-                    })
-                    .catch(error => console.error('Error fetching item data:', error));
-            });
-
-            document.getElementById('basket-summary').textContent = `Total items in plan: ${basket.length}`;
         }
 
         function showSection(section) {
@@ -369,6 +428,9 @@
         document.addEventListener('DOMContentLoaded', function() {
             fetchData();
             updateBasketSummary();
+            document.getElementById('construction-speedup').value = speedupValues.construction;
+            document.getElementById('research-speedup').value = speedupValues.research;
+            document.getElementById('troop-speedup').value = speedupValues.troop;
         });
     </script>
 </body>
