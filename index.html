@@ -288,13 +288,39 @@
         }
 
         function addToPlan(type, index) {
-            fetch(`./data/${type}.json`)
-                .then(response => response.json())
+            let dataFile = '';
+            switch (type) {
+                case 'construction':
+                    dataFile = 'building.json';
+                    break;
+                case 'troop':
+                    dataFile = 'infantry.json';
+                    break;
+                case 'research':
+                    dataFile = type === 'research_b' ? 'research_b.json' :
+                               type === 'research_e' ? 'research_e.json' : 'research_g.json';
+                    break;
+                default:
+                    console.error('Invalid type for fetching data:', type);
+                    return;
+            }
+            
+            fetch(`./data/${dataFile}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     let item = data[index];
-                    basket.push({ ...item, type: type });
-                    localStorage.setItem('basket', JSON.stringify(basket));
-                    updateBasketSummary();
+                    if (item) {
+                        basket.push({ ...item, type: type });
+                        localStorage.setItem('basket', JSON.stringify(basket));
+                        updateBasketSummary();
+                    } else {
+                        console.error('Item not found in data:', index);
+                    }
                 })
                 .catch(error => console.error('Error adding item to plan:', error));
         }
@@ -306,20 +332,20 @@
             let totalCosts = {};
             let totalPower = 0;
             let totalTime = 0;
-
+        
             basket.forEach((item, index) => {
                 let adjustedTime = calculateAdjustedTime(item.time, item.type);
                 let listItem = document.createElement('li');
                 listItem.innerHTML = `${item.type}: ${item.name} (Level ${item.level})
                     <button onclick="removeFromPlan(${index})">Remove from Plan</button>`;
                 basketList.appendChild(listItem);
-
+        
                 // Calculate total items, costs, power, and time
                 if (!totalItems[item.type]) {
                     totalItems[item.type] = 0;
                 }
                 totalItems[item.type] += 1;
-
+        
                 for (let key in item.build_cost) {
                     if (!totalCosts[key]) {
                         totalCosts[key] = 0;
@@ -329,16 +355,16 @@
                 totalPower += item.power;
                 totalTime += parseTimeToSeconds(adjustedTime);
             });
-
+        
             let basketSummary = document.getElementById('basket-summary');
             basketSummary.textContent = `Total items in plan: ${basket.length}`;
-
+        
             let subtotalText = `Subtotal: `;
             subtotalText += Object.keys(totalCosts).map(key => 
                 `<img src='./images/${key}.png' alt='${key}' title='${key}' style='width: 20px; height: 20px;'> ${totalCosts[key]}`
             ).join(' ');
             subtotalText += ` | Total Power: ${totalPower} | Total Time: ${formatTime(totalTime)}`;
-
+        
             let basketSubtotal = document.getElementById('basket-subtotal');
             basketSubtotal.innerHTML = subtotalText;
         }
