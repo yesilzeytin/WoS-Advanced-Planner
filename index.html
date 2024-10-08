@@ -210,12 +210,13 @@
                         ).join(' ')}
                     </div>
                     <p>Time: ${item.time} | Power: ${item.power}</p>
-                    <button onclick="addToBasket('${type}', '${item.name}', '${item.level}', ${JSON.stringify(item.build_cost)}, ${item.power})">Add to Basket</button>`;
+                    <button onclick="addToBasket('${type}', '${item.name}', '${item.level}', ${encodeURIComponent(JSON.stringify(item.build_cost))}, ${item.power})">Add to Basket</button>`;
                 container.appendChild(div);
             });
         }
 
-        function addToBasket(type, name, level, build_cost, power) {
+        function addToBasket(type, name, level, encodedBuildCost, power) {
+            let build_cost = JSON.parse(decodeURIComponent(encodedBuildCost));
             basket.push({ type, name, level, build_cost, power });
             localStorage.setItem('basket', JSON.stringify(basket));
             updateBasketSummary();
