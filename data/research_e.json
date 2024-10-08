@@ -1,0 +1,29 @@
+[
+    {
+        "name": "Food Gathering I",
+        "level": "1",
+        "build_cost": {
+            "meat": 4000,
+            "wood": 4000,
+            "coal": 810,
+            "iron": 200,
+            "steel": 240
+        },
+        "time": "00:00:27",
+        "power": 1000
+    },
+
+    {
+        "name": "Food Gathering I",
+        "level": "2",
+        "build_cost": {
+            "meat": 5600,
+            "wood": 5600,
+            "coal": 1100,
+            "iron": 280,
+            "steel": 320
+        },
+        "time": "00:00:40",
+        "power": 1000
+    }
+]

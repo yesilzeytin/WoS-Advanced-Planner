@@ -1,0 +1,29 @@
+[
+    {
+        "name": "Furnace",
+        "level": "30-1",
+        "build_cost": {
+            "meat": 23000000,
+            "wood": 23000000,
+            "coal": 4700000,
+            "iron": 1100000,
+            "fire_crystals": 59
+        },
+        "time": "1d 01:12:00",
+        "power": 316180
+    },
+
+    {
+        "name": "Furnace",
+        "level": "30-2",
+        "build_cost": {
+            "meat": 23000000,
+            "wood": 23000000,
+            "coal": 4700000,
+            "iron": 1100000,
+            "fire_crystals": 59
+        },
+        "time": "1d 01:12:00",
+        "power": 327660
+    }
+]

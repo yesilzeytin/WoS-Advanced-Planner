@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Riyeko's Whiteout Survival Planner</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background-color: #F9F9F9;
+        }
+
+        .container {
+            background-color: #FFFACD;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4D4D4D;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #AEC6CF;
+            color: #FFF;
+            border: none;
+            border-radius: 5px;
+            margin: 5px;
+        }
+
+        .tab.active {
+            background-color: #F4C2C2;
+            color: #4D4D4D;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .shopping-basket {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #FAFAD2;
+            border-radius: 8px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .basket-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .basket-list li {
+            padding: 5px 0;
+            border-bottom: 1px solid #DDD;
+        }
+
+        .placeholder-ad {
+            height: 60px;
+            background-color: #DDD;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Whiteout Survival Planner</h1>
+    
+    <div class="tabs">
+        <div class="tab active" onclick="showSection('buildings')">Buildings</div>
+        <div class="tab" onclick="showSection('infantry')">Troops</div>
+        <div class="tab" onclick="showSection('research_b')">Battle Research</div>
+        <div class="tab" onclick="showSection('research_e')">Economy Research</div>
+        <div class="tab" onclick="showSection('research_g')">Growth Research</div>
+    </div>
+
+    <div class="container">
+        <div id="buildings" class="section active">
+            <h2>Buildings</h2>
+            <div id="buildings-list"></div>
+        </div>
+
+        <div id="infantry" class="section">
+            <h2>Troops</h2>
+            <div id="infantry-list"></div>
+        </div>
+
+        <div id="research_b" class="section">
+            <h2>Battle Research</h2>
+            <div id="research-b-list"></div>
+        </div>
+
+        <div id="research_e" class="section">
+            <h2>Economy Research</h2>
+            <div id="research-e-list"></div>
+        </div>
+
+        <div id="research_g" class="section">
+            <h2>Growth Research</h2>
+            <div id="research-g-list"></div>
+        </div>
+
+        <div class="shopping-basket">
+            <h3>Your Shopping Basket</h3>
+            <ul id="basket-list" class="basket-list"></ul>
+            <p id="basket-summary"></p>
+        </div>
+
+        <div class="placeholder-ad">Placeholder for Google Ad</div>
+    </div>
+
+    <script>
+        let basket = JSON.parse(localStorage.getItem('basket')) || [];
+
+        function fetchData() {
+            // Fetch building data
+            fetch('./data/building.json')
+                .then(response => response.json())
+                .then(data => {
+                    displayItems(data, 'buildings-list', 'building');
+                })
+                .catch(error => console.error('Error fetching building data:', error));
+
+            // Fetch infantry data
+            fetch('./data/infantry.json')
+                .then(response => response.json())
+                .then(data => {
+                    displayItems(data, 'infantry-list', 'infantry');
+                })
+                .catch(error => console.error('Error fetching infantry data:', error));
+
+            // Fetch research data
+            fetch('./data/research_b.json')
+                .then(response => response.json())
+                .then(data => {
+                    displayItems(data, 'research-b-list', 'research_b');
+                })
+                .catch(error => console.error('Error fetching battle research data:', error));
+
+            fetch('./data/research_e.json')
+                .then(response => response.json())
+                .then(data => {
+                    displayItems(data, 'research-e-list', 'research_e');
+                })
+                .catch(error => console.error('Error fetching economy research data:', error));
+
+            fetch('./data/research_g.json')
+                .then(response => response.json())
+                .then(data => {
+                    displayItems(data, 'research-g-list', 'research_g');
+                })
+                .catch(error => console.error('Error fetching growth research data:', error));
+        }
+
+        function displayItems(items, containerId, type) {
+            let container = document.getElementById(containerId);
+            container.innerHTML = ''; // Clear the container before adding items
+            items.forEach(item => {
+                let div = document.createElement('div');
+                div.innerHTML = `<p><strong>${item.name} (Level ${item.level})</strong></p>
+                    <p>Time: ${item.time}</p>
+                    <button onclick="addToBasket('${type}', '${item.name}', ${item.level})">Add to Basket</button>`;
+                container.appendChild(div);
+            });
+        }
+
+        function addToBasket(type, name, level) {
+            basket.push({ type, name, level });
+            localStorage.setItem('basket', JSON.stringify(basket));
+            updateBasketSummary();
+        }
+
+        function updateBasketSummary() {
+            let basketList = document.getElementById('basket-list');
+            basketList.innerHTML = '';
+            let totalItems = {};
+
+            basket.forEach(item => {
+                let listItem = document.createElement('li');
+                listItem.textContent = `${item.type}: ${item.name} (Level ${item.level})`;
+                basketList.appendChild(listItem);
+
+                if (!totalItems[item.type]) {
+                    totalItems[item.type] = 0;
+                }
+                totalItems[item.type] += 1;
+            });
+
+            let basketSummary = document.getElementById('basket-summary');
+            basketSummary.textContent = `Total items in basket: ${basket.length}`;
+        }
+
+        function showSection(section) {
+            const sections = document.querySelectorAll('.section');
+            const tabs = document.querySelectorAll('.tab');
+            sections.forEach(sec => sec.classList.remove('active'));
+            tabs.forEach(tab => tab.classList.remove('active'));
+            document.getElementById(section).classList.add('active');
+            document.querySelector(`.tab[onclick="showSection('${section}')"]`).classList.add('active');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchData();
+            updateBasketSummary();
+        });
+    </script>
+</body>
+</html>

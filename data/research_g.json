@@ -1,0 +1,29 @@
+[
+    {
+        "name": "Tool Enhancement I",
+        "level": "1",
+        "build_cost": {
+            "meat": 2200,
+            "wood": 2200,
+            "coal": 450,
+            "iron": 110,
+            "steel": 140
+        },
+        "time": "00:00:35",
+        "power": 2000
+    },
+
+    {
+        "name": "Tool Enhancement I",
+        "level": "2",
+        "build_cost": {
+            "meat": 3200,
+            "wood": 3200,
+            "coal": 640,
+            "iron": 160,
+            "steel": 190
+        },
+        "time": "00:00:52",
+        "power": 2000
+    }
+]

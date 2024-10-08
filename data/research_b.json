@@ -1,0 +1,29 @@
+[
+    {
+        "name": "Regimental Expansion I",
+        "level": "1",
+        "build_cost": {
+            "meat": 9400,
+            "wood": 9400,
+            "coal": 1800,
+            "iron": 470,
+            "steel": 560
+        },
+        "time": "00:03:36",
+        "power": 5760
+    },
+
+    {
+        "name": "Regimental Expansion I",
+        "level": "2",
+        "build_cost": {
+            "meat": 13000,
+            "wood": 13000,
+            "coal": 2600,
+            "iron": 660,
+            "steel": 780
+        },
+        "time": "00:05:24",
+        "power": 5760
+    }
+]
