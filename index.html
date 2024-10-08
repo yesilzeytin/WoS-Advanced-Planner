@@ -178,21 +178,21 @@
         <div id="construction_speedup" class="section">
             <h2>Construction Speedup</h2>
             <p>Enter your speedup values for construction tasks here.</p>
-            <input type="number" id="construction-speedup" placeholder="Enter construction speedup %" value="0">
+            <input type="number" id="construction-speedup" placeholder="Enter construction speedup %">
             <button onclick="storeSpeedup('construction')">Submit</button>
         </div>
-        
+
         <div id="research_speedup" class="section">
             <h2>Research Speedup</h2>
             <p>Enter your speedup values for research tasks here.</p>
-            <input type="number" id="research-speedup" placeholder="Enter research speedup %" value="0">
+            <input type="number" id="research-speedup" placeholder="Enter research speedup %">
             <button onclick="storeSpeedup('research')">Submit</button>
         </div>
-        
+
         <div id="troop_speedup" class="section">
             <h2>Troop Speedup</h2>
             <p>Enter your speedup values for troop training here.</p>
-            <input type="number" id="troop-speedup" placeholder="Enter troop speedup %" value="0">
+            <input type="number" id="troop-speedup" placeholder="Enter troop speedup %">
             <button onclick="storeSpeedup('troop')">Submit</button>
         </div>
 
@@ -230,21 +230,43 @@
         };
 
         function fetchData() {
-            const fetchAndDisplay = (url, listId, type) => {
-                fetch(url)
-                    .then(response => response.json())
-                    .then(data => {
-                        displayItems(data, listId, type);
-                    })
-                    .catch(error => console.error(`Error fetching data from ${url}:`, error));
-            };
-        
-            // Fetch all categories data
-            fetchAndDisplay('./data/building.json', 'buildings-list', 'construction');
-            fetchAndDisplay('./data/infantry.json', 'infantry-list', 'troop');
-            fetchAndDisplay('./data/research_b.json', 'research-b-list', 'research');
-            fetchAndDisplay('./data/research_e.json', 'research-e-list', 'research');
-            fetchAndDisplay('./data/research_g.json', 'research-g-list', 'research');
+            // Fetch building data
+            fetch('./data/building.json')
+                .then(response => response.json())
+                .then(data => {
+                    displayItems(data, 'buildings-list', 'construction');
+                })
+                .catch(error => console.error('Error fetching building data:', error));
+
+            // Fetch infantry data
+            fetch('./data/infantry.json')
+                .then(response => response.json())
+                .then(data => {
+                    displayItems(data, 'infantry-list', 'troop');
+                })
+                .catch(error => console.error('Error fetching infantry data:', error));
+
+            // Fetch research data
+            fetch('./data/research_b.json')
+                .then(response => response.json())
+                .then(data => {
+                    displayItems(data, 'research-b-list', 'research');
+                })
+                .catch(error => console.error('Error fetching battle research data:', error));
+
+            fetch('./data/research_e.json')
+                .then(response => response.json())
+                .then(data => {
+                    displayItems(data, 'research-e-list', 'research');
+                })
+                .catch(error => console.error('Error fetching economy research data:', error));
+
+            fetch('./data/research_g.json')
+                .then(response => response.json())
+                .then(data => {
+                    displayItems(data, 'research-g-list', 'research');
+                })
+                .catch(error => console.error('Error fetching growth research data:', error));
         }
 
         function displayItems(items, containerId, type) {
@@ -266,21 +288,38 @@
         }
 
         function addToPlan(type, index) {
-            fetch(`./data/${type}.json`)
+            let dataFile = '';
+            switch (type) {
+                case 'construction':
+                    dataFile = 'building.json';
+                    break;
+                case 'troop':
+                    dataFile = 'infantry.json';
+                    break;
+                case 'research':
+                    dataFile = type === 'research_b' ? 'research_b.json' :
+                               type === 'research_e' ? 'research_e.json' : 'research_g.json';
+                    break;
+                default:
+                    console.error('Invalid type for fetching data:', type);
+                    return;
+            }
+            
+            fetch(`./data/${dataFile}`)
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error(`Error fetching JSON for type: ${type}`);
+                        throw new Error(`HTTP error! status: ${response.status}`);
                     }
                     return response.json();
                 })
                 .then(data => {
-                    if (data[index]) {
-                        let item = data[index];
+                    let item = data[index];
+                    if (item) {
                         basket.push({ ...item, type: type });
                         localStorage.setItem('basket', JSON.stringify(basket));
                         updateBasketSummary();
                     } else {
-                        console.error(`No item found at index ${index} for type: ${type}`);
+                        console.error('Item not found in data:', index);
                     }
                 })
                 .catch(error => console.error('Error adding item to plan:', error));
@@ -373,15 +412,8 @@
         function calculateAdjustedTime(time, type) {
             if (!time) return 'N/A';
             let timeInSeconds = parseTimeToSeconds(time);
-            if (isNaN(timeInSeconds)) return 'N/A';
-        
-            let speedup = speedupValues[type] ? speedupValues[type] / 100 : 0;
+            let speedup = speedupValues[type] / 100;
             let adjustedTimeInSeconds = timeInSeconds / (1 + speedup);
-        
-            if (isNaN(adjustedTimeInSeconds)) {
-                return 'N/A';
-            }
-        
             return formatTime(adjustedTimeInSeconds);
         }
 
