@@ -60,11 +60,15 @@
         }
 
         .shopping-basket {
-            margin-top: 20px;
-            padding: 15px;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
             background-color: #FAFAD2;
+            padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 1000;
         }
 
         .basket-list {
@@ -99,6 +103,28 @@
             font-weight: bold;
             text-align: center;
             margin-top: 15px;
+        }
+
+        .floating-basket-icon {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #AEC6CF;
+            color: #FFF;
+            padding: 15px;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        .close-basket {
+            background-color: #F4C2C2;
+            color: #4D4D4D;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            margin-top: 10px;
         }
 
         @media (max-width: 600px) {
@@ -145,15 +171,18 @@
             <div id="research-g-list"></div>
         </div>
 
-        <div class="shopping-basket">
-            <h3>Your Shopping Basket</h3>
-            <ul id="basket-list" class="basket-list"></ul>
-            <p id="basket-summary"></p>
-            <p id="basket-subtotal" class="subtotal"></p>
-        </div>
-
         <div class="placeholder-ad">Placeholder for Google Ad</div>
     </div>
+
+    <div id="shopping-basket" class="shopping-basket">
+        <h3>Your Plan</h3>
+        <ul id="basket-list" class="basket-list"></ul>
+        <p id="basket-summary"></p>
+        <p id="basket-subtotal" class="subtotal"></p>
+        <button class="close-basket" onclick="toggleBasket()">Close</button>
+    </div>
+
+    <div class="floating-basket-icon" onclick="toggleBasket()">🛒</div>
 
     <script>
         let basket = JSON.parse(localStorage.getItem('basket')) || [];
@@ -210,21 +239,21 @@
                         ).join(' ')}
                     </div>
                     <p>Time: ${item.time} | Power: ${item.power}</p>
-                    <button onclick="addToBasket('${type}', ${index})">Add to Basket</button>`;
+                    <button onclick="addToPlan('${type}', ${index})">Add to Plan</button>`;
                 container.appendChild(div);
             });
         }
 
-        function addToBasket(type, index) {
+        function addToPlan(type, index) {
             fetch(`./data/${type}.json`)
                 .then(response => response.json())
                 .then(data => {
                     let item = data[index];
-                    basket.push(item);
+                    basket.push({ ...item, type: type });
                     localStorage.setItem('basket', JSON.stringify(basket));
                     updateBasketSummary();
                 })
-                .catch(error => console.error('Error adding item to basket:', error));
+                .catch(error => console.error('Error adding item to plan:', error));
         }
 
         function updateBasketSummary() {
@@ -233,14 +262,15 @@
             let totalItems = {};
             let totalCosts = {};
             let totalPower = 0;
+            let totalTime = 0;
 
             basket.forEach((item, index) => {
                 let listItem = document.createElement('li');
                 listItem.innerHTML = `${item.type}: ${item.name} (Level ${item.level})
-                    <button onclick="removeFromBasket(${index})">Remove</button>`;
+                    <button onclick="removeFromPlan(${index})">Remove from Plan</button>`;
                 basketList.appendChild(listItem);
 
-                // Calculate total items and costs
+                // Calculate total items, costs, power, and time
                 if (!totalItems[item.type]) {
                     totalItems[item.type] = 0;
                 }
@@ -253,25 +283,58 @@
                     totalCosts[key] += item.build_cost[key];
                 }
                 totalPower += item.power;
+                totalTime += parseTimeToSeconds(item.time);
             });
 
             let basketSummary = document.getElementById('basket-summary');
-            basketSummary.textContent = `Total items in basket: ${basket.length}`;
+            basketSummary.textContent = `Total items in plan: ${basket.length}`;
 
             let subtotalText = `Subtotal: `;
             subtotalText += Object.keys(totalCosts).map(key => 
                 `<img src='./images/${key}.png' alt='${key}' title='${key}' style='width: 20px; height: 20px;'> ${totalCosts[key]}`
             ).join(' ');
-            subtotalText += ` | Total Power: ${totalPower}`;
+            subtotalText += ` | Total Power: ${totalPower} | Total Time: ${formatTime(totalTime)}`;
 
             let basketSubtotal = document.getElementById('basket-subtotal');
             basketSubtotal.innerHTML = subtotalText;
         }
 
-        function removeFromBasket(index) {
+        function removeFromPlan(index) {
             basket.splice(index, 1);
             localStorage.setItem('basket', JSON.stringify(basket));
             updateBasketSummary();
+        }
+
+        function toggleBasket() {
+            const basket = document.getElementById('shopping-basket');
+            basket.style.display = basket.style.display === 'none' || basket.style.display === '' ? 'block' : 'none';
+        }
+
+        function parseTimeToSeconds(time) {
+            const parts = time.split(' ');
+            let seconds = 0;
+            parts.forEach(part => {
+                if (part.includes('d')) {
+                    seconds += parseInt(part) * 86400;
+                } else if (part.includes('h')) {
+                    seconds += parseInt(part) * 3600;
+                } else if (part.includes('m')) {
+                    seconds += parseInt(part) * 60;
+                } else if (part.includes('s')) {
+                    seconds += parseInt(part);
+                }
+            });
+            return seconds;
+        }
+
+        function formatTime(seconds) {
+            const days = Math.floor(seconds / 86400);
+            seconds %= 86400;
+            const hours = Math.floor(seconds / 3600);
+            seconds %= 3600;
+            const minutes = Math.floor(seconds / 60);
+            seconds %= 60;
+            return `${days}d ${hours}h ${minutes}m ${seconds}s`;
         }
 
         function showSection(section) {
