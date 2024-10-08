@@ -157,12 +157,14 @@
 
     <script>
         let basket = JSON.parse(localStorage.getItem('basket')) || [];
+        let itemsData = {};
 
         function fetchData() {
             // Fetch building data
             fetch('./data/building.json')
                 .then(response => response.json())
                 .then(data => {
+                    itemsData['building'] = data;
                     displayItems(data, 'buildings-list', 'building');
                 })
                 .catch(error => console.error('Error fetching building data:', error));
@@ -171,6 +173,7 @@
             fetch('./data/infantry.json')
                 .then(response => response.json())
                 .then(data => {
+                    itemsData['infantry'] = data;
                     displayItems(data, 'infantry-list', 'infantry');
                 })
                 .catch(error => console.error('Error fetching infantry data:', error));
@@ -179,6 +182,7 @@
             fetch('./data/research_b.json')
                 .then(response => response.json())
                 .then(data => {
+                    itemsData['research_b'] = data;
                     displayItems(data, 'research-b-list', 'research_b');
                 })
                 .catch(error => console.error('Error fetching battle research data:', error));
@@ -186,6 +190,7 @@
             fetch('./data/research_e.json')
                 .then(response => response.json())
                 .then(data => {
+                    itemsData['research_e'] = data;
                     displayItems(data, 'research-e-list', 'research_e');
                 })
                 .catch(error => console.error('Error fetching economy research data:', error));
@@ -193,6 +198,7 @@
             fetch('./data/research_g.json')
                 .then(response => response.json())
                 .then(data => {
+                    itemsData['research_g'] = data;
                     displayItems(data, 'research-g-list', 'research_g');
                 })
                 .catch(error => console.error('Error fetching growth research data:', error));
@@ -201,7 +207,7 @@
         function displayItems(items, containerId, type) {
             let container = document.getElementById(containerId);
             container.innerHTML = ''; // Clear the container before adding items
-            items.forEach(item => {
+            items.forEach((item, index) => {
                 let div = document.createElement('div');
                 div.innerHTML = `<p><strong>${item.name} (Level ${item.level})</strong></p>
                     <div class="item-icons">
@@ -210,14 +216,14 @@
                         ).join(' ')}
                     </div>
                     <p>Time: ${item.time} | Power: ${item.power}</p>
-                    <button onclick="addToBasket('${type}', '${item.name}', '${item.level}', ${encodeURIComponent(JSON.stringify(item.build_cost))}, ${item.power})">Add to Basket</button>`;
+                    <button onclick="addToBasket('${type}', ${index})">Add to Basket</button>`;
                 container.appendChild(div);
             });
         }
 
-        function addToBasket(type, name, level, encodedBuildCost, power) {
-            let build_cost = JSON.parse(decodeURIComponent(encodedBuildCost));
-            basket.push({ type, name, level, build_cost, power });
+        function addToBasket(type, index) {
+            let item = itemsData[type][index];
+            basket.push(item);
             localStorage.setItem('basket', JSON.stringify(basket));
             updateBasketSummary();
         }
