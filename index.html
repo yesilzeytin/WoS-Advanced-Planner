@@ -296,9 +296,14 @@
                 case 'troop':
                     dataFile = 'infantry.json';
                     break;
-                case 'research':
-                    dataFile = type === 'research_b' ? 'research_b.json' :
-                               type === 'research_e' ? 'research_e.json' : 'research_g.json';
+                case 'research_b':
+                    dataFile = 'research_b.json';
+                    break;
+                case 'research_e':
+                    dataFile = 'research_e.json';
+                    break;
+                case 'research_g':
+                    dataFile = 'research_g.json';
                     break;
                 default:
                     console.error('Invalid type for fetching data:', type);
@@ -382,20 +387,23 @@
 
         function parseTimeToSeconds(time) {
             if (!time) return 0;
-            const parts = time.split(' ');
-            let seconds = 0;
-            parts.forEach(part => {
-                if (part.includes('d')) {
-                    seconds += parseInt(part) * 86400;
-                } else if (part.includes('h')) {
-                    seconds += parseInt(part) * 3600;
-                } else if (part.includes('m')) {
-                    seconds += parseInt(part) * 60;
-                } else if (part.includes('s')) {
-                    seconds += parseInt(part);
+
+            // Split day part from the time if present
+            let [dayPart, timePart] = time.split('d ');
+            let days = parseInt(dayPart) || 0;
+
+            let hours = 0, minutes = 0, seconds = 0;
+            if (timePart) {
+                const timeParts = timePart.split(':');
+                if (timeParts.length === 3) {
+                    hours = parseInt(timeParts[0]) || 0;
+                    minutes = parseInt(timeParts[1]) || 0;
+                    seconds = parseInt(timeParts[2]) || 0;
                 }
-            });
-            return seconds;
+            }
+
+            // Calculate total seconds
+            return days * 86400 + hours * 3600 + minutes * 60 + seconds;
         }
 
         function formatTime(seconds) {
