@@ -75,6 +75,9 @@
         .basket-list li {
             padding: 5px 0;
             border-bottom: 1px solid #DDD;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .placeholder-ad {
@@ -84,6 +87,18 @@
             align-items: center;
             justify-content: center;
             margin: 20px 0;
+        }
+
+        .item-icons {
+            display: flex;
+            gap: 5px;
+            margin: 10px 0;
+        }
+
+        .subtotal {
+            font-weight: bold;
+            text-align: center;
+            margin-top: 15px;
         }
 
         @media (max-width: 600px) {
@@ -134,6 +149,7 @@
             <h3>Your Shopping Basket</h3>
             <ul id="basket-list" class="basket-list"></ul>
             <p id="basket-summary"></p>
+            <p id="basket-subtotal" class="subtotal"></p>
         </div>
 
         <div class="placeholder-ad">Placeholder for Google Ad</div>
@@ -188,14 +204,19 @@
             items.forEach(item => {
                 let div = document.createElement('div');
                 div.innerHTML = `<p><strong>${item.name} (Level ${item.level})</strong></p>
-                    <p>Time: ${item.time}</p>
-                    <button onclick="addToBasket('${type}', '${item.name}', ${item.level})">Add to Basket</button>`;
+                    <div class="item-icons">
+                        ${Object.keys(item.costs).map(key => 
+                            `<img src='./images/${key}.png' alt='${key}' title='${key}' style='width: 20px; height: 20px;'> ${item.costs[key]}`
+                        ).join(' ')}
+                    </div>
+                    <p>Time: ${item.time} | Power: ${item.power}</p>
+                    <button onclick="addToBasket('${type}', '${item.name}', ${item.level}, ${JSON.stringify(item.costs)}, ${item.power})">Add to Basket</button>`;
                 container.appendChild(div);
             });
         }
 
-        function addToBasket(type, name, level) {
-            basket.push({ type, name, level });
+        function addToBasket(type, name, level, costs, power) {
+            basket.push({ type, name, level, costs, power });
             localStorage.setItem('basket', JSON.stringify(basket));
             updateBasketSummary();
         }
@@ -204,20 +225,47 @@
             let basketList = document.getElementById('basket-list');
             basketList.innerHTML = '';
             let totalItems = {};
+            let totalCosts = {};
+            let totalPower = 0;
 
-            basket.forEach(item => {
+            basket.forEach((item, index) => {
                 let listItem = document.createElement('li');
-                listItem.textContent = `${item.type}: ${item.name} (Level ${item.level})`;
+                listItem.innerHTML = `${item.type}: ${item.name} (Level ${item.level})
+                    <button onclick="removeFromBasket(${index})">Remove</button>`;
                 basketList.appendChild(listItem);
 
+                // Calculate total items and costs
                 if (!totalItems[item.type]) {
                     totalItems[item.type] = 0;
                 }
                 totalItems[item.type] += 1;
+
+                for (let key in item.costs) {
+                    if (!totalCosts[key]) {
+                        totalCosts[key] = 0;
+                    }
+                    totalCosts[key] += item.costs[key];
+                }
+                totalPower += item.power;
             });
 
             let basketSummary = document.getElementById('basket-summary');
             basketSummary.textContent = `Total items in basket: ${basket.length}`;
+
+            let subtotalText = `Subtotal: `;
+            subtotalText += Object.keys(totalCosts).map(key => 
+                `<img src='./images/${key}.png' alt='${key}' title='${key}' style='width: 20px; height: 20px;'> ${totalCosts[key]}`
+            ).join(' ');
+            subtotalText += ` | Total Power: ${totalPower}`;
+
+            let basketSubtotal = document.getElementById('basket-subtotal');
+            basketSubtotal.innerHTML = subtotalText;
+        }
+
+        function removeFromBasket(index) {
+            basket.splice(index, 1);
+            localStorage.setItem('basket', JSON.stringify(basket));
+            updateBasketSummary();
         }
 
         function showSection(section) {
