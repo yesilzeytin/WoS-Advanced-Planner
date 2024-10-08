@@ -205,18 +205,18 @@
                 let div = document.createElement('div');
                 div.innerHTML = `<p><strong>${item.name} (Level ${item.level})</strong></p>
                     <div class="item-icons">
-                        ${Object.keys(item.costs).map(key => 
-                            `<img src='./images/${key}.png' alt='${key}' title='${key}' style='width: 20px; height: 20px;'> ${item.costs[key]}`
+                        ${Object.keys(item.build_cost).map(key => 
+                            `<img src='./images/${key}.png' alt='${key}' title='${key}' style='width: 20px; height: 20px;'> ${item.build_cost[key]}`
                         ).join(' ')}
                     </div>
                     <p>Time: ${item.time} | Power: ${item.power}</p>
-                    <button onclick="addToBasket('${type}', '${item.name}', ${item.level}, ${JSON.stringify(item.costs)}, ${item.power})">Add to Basket</button>`;
+                    <button onclick="addToBasket('${type}', '${item.name}', '${item.level}', ${JSON.stringify(item.build_cost)}, ${item.power})">Add to Basket</button>`;
                 container.appendChild(div);
             });
         }
 
-        function addToBasket(type, name, level, costs, power) {
-            basket.push({ type, name, level, costs, power });
+        function addToBasket(type, name, level, build_cost, power) {
+            basket.push({ type, name, level, build_cost, power });
             localStorage.setItem('basket', JSON.stringify(basket));
             updateBasketSummary();
         }
@@ -240,11 +240,11 @@
                 }
                 totalItems[item.type] += 1;
 
-                for (let key in item.costs) {
+                for (let key in item.build_cost) {
                     if (!totalCosts[key]) {
                         totalCosts[key] = 0;
                     }
-                    totalCosts[key] += item.costs[key];
+                    totalCosts[key] += item.build_cost[key];
                 }
                 totalPower += item.power;
             });
