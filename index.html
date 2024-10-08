@@ -178,19 +178,19 @@
         <div id="construction_speedup" class="section">
             <h2>Construction Speedup</h2>
             <p>Enter your speedup values for construction tasks here.</p>
-            <!-- Add input fields for construction speedup -->
+            <input type="number" id="construction-speedup" placeholder="Enter construction speedup %" onchange="storeSpeedup('construction')">
         </div>
 
         <div id="research_speedup" class="section">
             <h2>Research Speedup</h2>
             <p>Enter your speedup values for research tasks here.</p>
-            <!-- Add input fields for research speedup -->
+            <input type="number" id="research-speedup" placeholder="Enter research speedup %" onchange="storeSpeedup('research')">
         </div>
 
         <div id="troop_speedup" class="section">
             <h2>Troop Speedup</h2>
             <p>Enter your speedup values for troop training here.</p>
-            <!-- Add input fields for troop speedup -->
+            <input type="number" id="troop-speedup" placeholder="Enter troop speedup %" onchange="storeSpeedup('troop')">
         </div>
 
         <div id="info" class="section">
@@ -220,6 +220,11 @@
 
     <script>
         let basket = JSON.parse(localStorage.getItem('basket')) || [];
+        let speedupValues = {
+            construction: parseFloat(localStorage.getItem('construction_speedup')) || 0,
+            research: parseFloat(localStorage.getItem('research_speedup')) || 0,
+            troop: parseFloat(localStorage.getItem('troop_speedup')) || 0
+        };
 
         function fetchData() {
             // Fetch building data
@@ -265,6 +270,7 @@
             let container = document.getElementById(containerId);
             container.innerHTML = ''; // Clear the container before adding items
             items.forEach((item, index) => {
+                let adjustedTime = calculateAdjustedTime(item.time, type);
                 let div = document.createElement('div');
                 div.innerHTML = `<p><strong>${item.name} (Level ${item.level})</strong></p>
                     <div class="item-icons">
@@ -272,7 +278,7 @@
                             `<img src='./images/${key}.png' alt='${key}' title='${key}' style='width: 20px; height: 20px;'> ${item.build_cost[key]}`
                         ).join(' ')}
                     </div>
-                    <p>Time: ${item.time} | Power: ${item.power}</p>
+                    <p>Time: ${adjustedTime} | Power: ${item.power}</p>
                     <button onclick="addToPlan('${type}', ${index})">Add to Plan</button>`;
                 container.appendChild(div);
             });
@@ -299,6 +305,7 @@
             let totalTime = 0;
 
             basket.forEach((item, index) => {
+                let adjustedTime = calculateAdjustedTime(item.time, item.type);
                 let listItem = document.createElement('li');
                 listItem.innerHTML = `${item.type}: ${item.name} (Level ${item.level})
                     <button onclick="removeFromPlan(${index})">Remove from Plan</button>`;
@@ -317,7 +324,7 @@
                     totalCosts[key] += item.build_cost[key];
                 }
                 totalPower += item.power;
-                totalTime += parseTimeToSeconds(item.time);
+                totalTime += parseTimeToSeconds(adjustedTime);
             });
 
             let basketSummary = document.getElementById('basket-summary');
@@ -371,6 +378,20 @@
             return `${days}d ${hours}h ${minutes}m ${seconds}s`;
         }
 
+        function calculateAdjustedTime(time, type) {
+            let timeInSeconds = parseTimeToSeconds(time);
+            let speedup = speedupValues[type] / 100;
+            let adjustedTimeInSeconds = timeInSeconds / (1 + speedup);
+            return formatTime(adjustedTimeInSeconds);
+        }
+
+        function storeSpeedup(type) {
+            let value = parseFloat(document.getElementById(`${type}-speedup`).value) || 0;
+            speedupValues[type] = value;
+            localStorage.setItem(`${type}_speedup`, value);
+            updateBasketSummary();
+        }
+
         function showSection(section) {
             const sections = document.querySelectorAll('.section');
             const tabs = document.querySelectorAll('.tab');
@@ -383,6 +404,9 @@
         document.addEventListener('DOMContentLoaded', function() {
             fetchData();
             updateBasketSummary();
+            document.getElementById('construction-speedup').value = speedupValues.construction;
+            document.getElementById('research-speedup').value = speedupValues.research;
+            document.getElementById('troop-speedup').value = speedupValues.troop;
         });
     </script>
 </body>
