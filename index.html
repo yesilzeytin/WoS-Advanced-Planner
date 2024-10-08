@@ -220,7 +220,7 @@
                 .then(response => response.json())
                 .then(data => {
                     let item = data[index];
-                    basket.push(item);
+                    basket.push({ ...item, type: type });
                     localStorage.setItem('basket', JSON.stringify(basket));
                     updateBasketSummary();
                 })
@@ -236,7 +236,7 @@
 
             basket.forEach((item, index) => {
                 let listItem = document.createElement('li');
-                listItem.innerHTML = `${item.type}: ${item.name} (Level ${item.level})
+                listItem.innerHTML = `${type}: ${item.name} (Level ${item.level})
                     <button onclick="removeFromBasket(${index})">Remove</button>`;
                 basketList.appendChild(listItem);
 
