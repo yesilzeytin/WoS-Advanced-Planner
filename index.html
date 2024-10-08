@@ -157,14 +157,12 @@
 
     <script>
         let basket = JSON.parse(localStorage.getItem('basket')) || [];
-        let itemsData = {};
 
         function fetchData() {
             // Fetch building data
             fetch('./data/building.json')
                 .then(response => response.json())
                 .then(data => {
-                    itemsData['building'] = data;
                     displayItems(data, 'buildings-list', 'building');
                 })
                 .catch(error => console.error('Error fetching building data:', error));
@@ -173,7 +171,6 @@
             fetch('./data/infantry.json')
                 .then(response => response.json())
                 .then(data => {
-                    itemsData['infantry'] = data;
                     displayItems(data, 'infantry-list', 'infantry');
                 })
                 .catch(error => console.error('Error fetching infantry data:', error));
@@ -182,7 +179,6 @@
             fetch('./data/research_b.json')
                 .then(response => response.json())
                 .then(data => {
-                    itemsData['research_b'] = data;
                     displayItems(data, 'research-b-list', 'research_b');
                 })
                 .catch(error => console.error('Error fetching battle research data:', error));
@@ -190,7 +186,6 @@
             fetch('./data/research_e.json')
                 .then(response => response.json())
                 .then(data => {
-                    itemsData['research_e'] = data;
                     displayItems(data, 'research-e-list', 'research_e');
                 })
                 .catch(error => console.error('Error fetching economy research data:', error));
@@ -198,7 +193,6 @@
             fetch('./data/research_g.json')
                 .then(response => response.json())
                 .then(data => {
-                    itemsData['research_g'] = data;
                     displayItems(data, 'research-g-list', 'research_g');
                 })
                 .catch(error => console.error('Error fetching growth research data:', error));
@@ -222,10 +216,15 @@
         }
 
         function addToBasket(type, index) {
-            let item = itemsData[type][index];
-            basket.push(item);
-            localStorage.setItem('basket', JSON.stringify(basket));
-            updateBasketSummary();
+            fetch(`./data/${type}.json`)
+                .then(response => response.json())
+                .then(data => {
+                    let item = data[index];
+                    basket.push(item);
+                    localStorage.setItem('basket', JSON.stringify(basket));
+                    updateBasketSummary();
+                })
+                .catch(error => console.error('Error adding item to basket:', error));
         }
 
         function updateBasketSummary() {
