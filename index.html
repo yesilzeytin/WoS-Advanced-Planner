@@ -322,10 +322,10 @@
 
     async function loadData() {
         buildingsData = await fetch('/mnt/data/building.json').then(res => res.json());
-        researchGrowthData = await fetch('/mnt/data/research_g.json').then(res => res.json());
-        researchEconomyData = await fetch('/mnt/data/research_e.json').then(res => res.json());
-        researchBattleData = await fetch('/mnt/data/research_b.json').then(res => res.json());
-        troopsData = await fetch('/mnt/data/troops.json').then(res => res.json());
+        researchGrowthData = await fetch('./data/research_g.json').then(res => res.json());
+        researchEconomyData = await fetch('./data/research_e.json').then(res => res.json());
+        researchBattleData = await fetch('./data/research_b.json').then(res => res.json());
+        troopsData = await fetch('./data/troops.json').then(res => res.json());
 
         displayItems('buildings', buildingsData);
         displayItems('research_growth', researchGrowthData);
@@ -343,7 +343,7 @@
             const itemDiv = document.createElement('div');
             itemDiv.classList.add('item-list');
             itemDiv.innerHTML = `
-                <img src="../images/${getResourceIcon(item.build_cost)}.png" alt="${item.name}">
+                <img src="./images/${getResourceIcon(item.build_cost)}.png" alt="${item.name}">
                 <strong>${item.name} (Level ${item.level})</strong>
                 <span>Cost: ${formatBuildCost(item.build_cost)}</span>
                 <span>Time: ${item.time}</span>
