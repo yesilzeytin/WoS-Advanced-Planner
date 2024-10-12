@@ -86,7 +86,10 @@ function loadInputs() {
     }
 }
 
-// Make sure to load inputs when the page loads
+// Bind the save button to the saveInputs function on page load
 window.onload = function() {
-    loadInputs();
+    loadInputs(); // Load inputs when the page loads
+
+    // Attach the saveInputs function to the Save button
+    document.getElementById('save-button').addEventListener('click', saveInputs);
 };
