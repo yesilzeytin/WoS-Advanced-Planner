@@ -139,32 +139,32 @@
         <!-- Resource Inputs -->
         <h3>Resources</h3>
         <div class="resource-group">
-            <img src="../images/meat.png" alt="Meat">
+            <img src="./images/meat.png" alt="Meat">
             <input type="number" id="resource-meat" placeholder="Meat" min="0">
         </div>
 
         <div class="resource-group">
-            <img src="../images/wood.png" alt="Wood">
+            <img src="./images/wood.png" alt="Wood">
             <input type="number" id="resource-wood" placeholder="Wood" min="0">
         </div>
 
         <div class="resource-group">
-            <img src="../images/coal.png" alt="Coal">
+            <img src="./images/coal.png" alt="Coal">
             <input type="number" id="resource-coal" placeholder="Coal" min="0">
         </div>
 
         <div class="resource-group">
-            <img src="../images/iron.png" alt="Iron">
+            <img src="./images/iron.png" alt="Iron">
             <input type="number" id="resource-iron" placeholder="Iron" min="0">
         </div>
 
         <div class="resource-group">
-            <img src="../images/steel.png" alt="Steel">
+            <img src="./images/steel.png" alt="Steel">
             <input type="number" id="resource-steel" placeholder="Steel" min="0">
         </div>
 
         <div class="resource-group">
-            <img src="../images/fire_crystals.png" alt="Fire Crystals">
+            <img src="./images/fire_crystals.png" alt="Fire Crystals">
             <input type="number" id="resource-fire-crystals" placeholder="Fire Crystals" min="0">
         </div>
 
@@ -321,7 +321,7 @@
     let planItems = [];
 
     async function loadData() {
-        buildingsData = await fetch('/mnt/data/building.json').then(res => res.json());
+        buildingsData = await fetch('./data/building.json').then(res => res.json());
         researchGrowthData = await fetch('./data/research_g.json').then(res => res.json());
         researchEconomyData = await fetch('./data/research_e.json').then(res => res.json());
         researchBattleData = await fetch('./data/research_b.json').then(res => res.json());
