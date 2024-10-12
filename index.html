@@ -1,437 +1,122 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Riyeko's Whiteout Survival Planner</title>
-    
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Planning Calculator</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            background-color: #F9F9F9;
         }
-
         .container {
-            background-color: #FFFACD;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            max-width: 800px;
-            width: 100%;
+            margin: 20px;
         }
-
-        h1 {
-            text-align: center;
-            color: #4D4D4D;
+        .form-group {
+            margin-bottom: 10px;
         }
-
-        .tabs {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
+        label {
+            display: block;
+            font-weight: bold;
         }
-
-        .tab {
-            padding: 10px 20px;
-            cursor: pointer;
-            background-color: #AEC6CF;
-            color: #FFF;
+        input[type="number"], select {
+            padding: 5px;
+            margin-right: 10px;
+        }
+        #plan-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
             border: none;
             border-radius: 5px;
-            margin: 5px;
-        }
-
-        .tab.active {
-            background-color: #F4C2C2;
-            color: #4D4D4D;
-        }
-
-        .section {
-            display: none;
-        }
-
-        .section.active {
-            display: block;
-        }
-
-        .shopping-basket {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: #FAFAD2;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-            display: none;
-            z-index: 1000;
-        }
-
-        .basket-list {
-            list-style: none;
-            padding: 0;
-        }
-
-        .basket-list li {
-            padding: 5px 0;
-            border-bottom: 1px solid #DDD;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .placeholder-ad {
-            height: 60px;
-            background-color: #DDD;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 20px 0;
-        }
-
-        .item-icons {
-            display: flex;
-            gap: 5px;
-            margin: 10px 0;
-        }
-
-        .subtotal {
-            font-weight: bold;
-            text-align: center;
-            margin-top: 15px;
-        }
-
-        .floating-basket-icon {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: #AEC6CF;
-            color: #FFF;
-            padding: 15px;
-            border-radius: 50%;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
             cursor: pointer;
-            z-index: 1000;
-        }
-
-        .close-basket {
-            background-color: #F4C2C2;
-            color: #4D4D4D;
-            border: none;
-            padding: 5px 10px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        @media (max-width: 600px) {
-            body {
-                padding: 10px;
-            }
         }
     </style>
 </head>
 <body>
-    <h1>Whiteout Survival Planner</h1>
-    
-    <div class="tabs">
-        <div class="tab active" onclick="showSection('buildings')">Buildings</div>
-        <div class="tab" onclick="showSection('infantry')">Troops</div>
-        <div class="tab" onclick="showSection('research_b')">Battle Research</div>
-        <div class="tab" onclick="showSection('research_e')">Economy Research</div>
-        <div class="tab" onclick="showSection('research_g')">Growth Research</div>
-        <div class="tab" onclick="showSection('construction_speedup')">Construction Speedup</div>
-        <div class="tab" onclick="showSection('research_speedup')">Research Speedup</div>
-        <div class="tab" onclick="showSection('troop_speedup')">Troop Speedup</div>
-        <div class="tab" onclick="showSection('info')">Info</div>
+
+<div class="container">
+    <h1>Game Planning Calculator</h1>
+
+    <div class="form-group">
+        <label for="construction-day">Construction Speedup (Days/Hours/Minutes/Seconds):</label>
+        <input type="number" id="construction-day" placeholder="Days" min="0">
+        <input type="number" id="construction-hour" placeholder="Hours" min="0" max="23">
+        <input type="number" id="construction-minute" placeholder="Minutes" min="0" max="59">
+        <input type="number" id="construction-second" placeholder="Seconds" min="0" max="59">
     </div>
 
-    <div class="container">
-        <div id="buildings" class="section active">
-            <h2>Buildings</h2>
-            <div id="buildings-list"></div>
-        </div>
-
-        <div id="infantry" class="section">
-            <h2>Troops</h2>
-            <div id="infantry-list"></div>
-        </div>
-
-        <div id="research_b" class="section">
-            <h2>Battle Research</h2>
-            <div id="research-b-list"></div>
-        </div>
-
-        <div id="research_e" class="section">
-            <h2>Economy Research</h2>
-            <div id="research-e-list"></div>
-        </div>
-
-        <div id="research_g" class="section">
-            <h2>Growth Research</h2>
-            <div id="research-g-list"></div>
-        </div>
-
-        <div id="construction_speedup" class="section">
-            <h2>Construction Speedup</h2>
-            <p>Enter your speedup values for construction tasks here.</p>
-            <input type="number" id="construction-speedup" placeholder="Enter construction speedup %">
-            <button onclick="storeSpeedup('construction')">Submit</button>
-        </div>
-
-        <div id="research_speedup" class="section">
-            <h2>Research Speedup</h2>
-            <p>Enter your speedup values for research tasks here.</p>
-            <input type="number" id="research-speedup" placeholder="Enter research speedup %">
-            <button onclick="storeSpeedup('research')">Submit</button>
-        </div>
-
-        <div id="troop_speedup" class="section">
-            <h2>Troop Speedup</h2>
-            <p>Enter your speedup values for troop training here.</p>
-            <input type="number" id="troop-speedup" placeholder="Enter troop speedup %">
-            <button onclick="storeSpeedup('troop')">Submit</button>
-        </div>
-
-        <div id="info" class="section">
-            <h2>Information</h2>
-            <p>Welcome to Riyeko's Whiteout Survival Planner! This tool is designed to help you effectively manage your resources, plan your construction, research, and troop training, and calculate your speedup requirements. Use the tabs to navigate between different sections and input your data for optimal planning.</p>
-            <h3>Instructions</h3>
-            <ul>
-                <li>Navigate between different sections using the tabs above.</li>
-                <li>Add items to your plan by selecting them from the lists in each category.</li>
-                <li>View and manage your current plan by clicking on the shopping cart icon at the bottom right.</li>
-                <li>Enter speedup values in the relevant sections to calculate your time savings for construction, research, and troop training.</li>
-            </ul>
-        </div>
-
-        <div class="placeholder-ad">Placeholder for Google Ad</div>
+    <div class="form-group">
+        <label for="research-day">Research Speedup (Days/Hours/Minutes/Seconds):</label>
+        <input type="number" id="research-day" placeholder="Days" min="0">
+        <input type="number" id="research-hour" placeholder="Hours" min="0" max="23">
+        <input type="number" id="research-minute" placeholder="Minutes" min="0" max="59">
+        <input type="number" id="research-second" placeholder="Seconds" min="0" max="59">
     </div>
 
-    <div id="shopping-basket" class="shopping-basket">
-        <h3>Your Plan</h3>
-        <ul id="basket-list" class="basket-list"></ul>
-        <p id="basket-summary"></p>
-        <p id="basket-subtotal" class="subtotal"></p>
-        <button class="close-basket" onclick="toggleBasket()">Close</button>
+    <div class="form-group">
+        <label for="training-day">Training Speedup (Days/Hours/Minutes/Seconds):</label>
+        <input type="number" id="training-day" placeholder="Days" min="0">
+        <input type="number" id="training-hour" placeholder="Hours" min="0" max="23">
+        <input type="number" id="training-minute" placeholder="Minutes" min="0" max="59">
+        <input type="number" id="training-second" placeholder="Seconds" min="0" max="59">
     </div>
 
-    <div class="floating-basket-icon" onclick="toggleBasket()">🛒</div>
+    <div class="form-group">
+        <label for="troop-tier">Highest Troop Tier:</label>
+        <select id="troop-tier">
+            <option value="T1">T1</option>
+            <option value="T2">T2</option>
+            <option value="T3">T3</option>
+            <option value="T4">T4</option>
+            <option value="T5">T5</option>
+            <option value="T6">T6</option>
+            <option value="T7">T7</option>
+            <option value="T8">T8</option>
+            <option value="T9">T9</option>
+            <option value="T10">T10</option>
+        </select>
+    </div>
 
-    <script>
-        let basket = JSON.parse(localStorage.getItem('basket')) || [];
-        let speedupValues = {
-            construction: parseFloat(localStorage.getItem('construction_speedup')) || 0,
-            research: parseFloat(localStorage.getItem('research_speedup')) || 0,
-            troop: parseFloat(localStorage.getItem('troop_speedup')) || 0
+    <button onclick="saveInputs()">Save</button>
+</div>
+
+<button id="plan-button">View Plan</button>
+
+<script>
+    function saveInputs() {
+        // Save speedups and troop tier to local storage
+        const construction = {
+            day: document.getElementById('construction-day').value,
+            hour: document.getElementById('construction-hour').value,
+            minute: document.getElementById('construction-minute').value,
+            second: document.getElementById('construction-second').value
+        };
+        const research = {
+            day: document.getElementById('research-day').value,
+            hour: document.getElementById('research-hour').value,
+            minute: document.getElementById('research-minute').value,
+            second: document.getElementById('research-second').value
+        };
+        const training = {
+            day: document.getElementById('training-day').value,
+            hour: document.getElementById('training-hour').value,
+            minute: document.getElementById('training-minute').value,
+            second: document.getElementById('training-second').value
         };
 
-        function fetchData() {
-            // Fetch building data
-            fetch('./data/building.json')
-                .then(response => response.json())
-                .then(data => {
-                    displayItems(data, 'buildings-list', 'building');
-                })
-                .catch(error => console.error('Error fetching building data:', error));
+        const troopTier = document.getElementById('troop-tier').value;
 
-            // Fetch infantry data
-            fetch('./data/infantry.json')
-                .then(response => response.json())
-                .then(data => {
-                    displayItems(data, 'infantry-list', 'infantry');
-                })
-                .catch(error => console.error('Error fetching infantry data:', error));
+        localStorage.setItem('speedup-construction', JSON.stringify(construction));
+        localStorage.setItem('speedup-research', JSON.stringify(research));
+        localStorage.setItem('speedup-training', JSON.stringify(training));
+        localStorage.setItem('troop-tier', troopTier);
 
-            // Fetch research data
-            fetch('./data/research_b.json')
-                .then(response => response.json())
-                .then(data => {
-                    displayItems(data, 'research-b-list', 'research_b');
-                })
-                .catch(error => console.error('Error fetching battle research data:', error));
+        alert('Inputs saved!');
+    }
+</script>
 
-            fetch('./data/research_e.json')
-                .then(response => response.json())
-                .then(data => {
-                    displayItems(data, 'research-e-list', 'research_e');
-                })
-                .catch(error => console.error('Error fetching economy research data:', error));
-
-            fetch('./data/research_g.json')
-                .then(response => response.json())
-                .then(data => {
-                    displayItems(data, 'research-g-list', 'research_g');
-                })
-                .catch(error => console.error('Error fetching growth research data:', error));
-        }
-
-        function displayItems(items, containerId, type) {
-            let container = document.getElementById(containerId);
-            container.innerHTML = ''; // Clear the container before adding items
-            items.forEach(item => {
-                const parsedTime = parseTimeString(item.time);
-                let timeWithSpeedup = applySpeedup(parsedTime, type);
-                let div = document.createElement('div');
-                div.innerHTML = `<p><strong>${item.name} (Level ${item.level})</strong></p>
-                    <div class="item-icons">
-                        ${Object.keys(item.build_cost).map(resource => `<img src='./images/${resource}.png' alt='${resource}' title='${resource}' width='20' height='20'> x ${item.build_cost[resource]}`).join(' ')}
-                    </div>
-                    <p>Time: ${formatTime(timeWithSpeedup)}</p>
-                    <p>Power Gain: ${item.power}</p>
-                    <button onclick="addToBasket('${type}', '${item.name}', ${item.level})">Add to Plan</button>`;
-                container.appendChild(div);
-            });
-        }
-
-        function parseTimeString(timeString) {
-            const timeParts = timeString.match(/(\d+)d (\d+):(\d+):(\d+)/);
-            if (!timeParts) return 0;
-
-            const days = parseInt(timeParts[1]) || 0;
-            const hours = parseInt(timeParts[2]) || 0;
-            const minutes = parseInt(timeParts[3]) || 0;
-            const seconds = parseInt(timeParts[4]) || 0;
-
-            return (days * 86400) + (hours * 3600) + (minutes * 60) + seconds;
-        }
-
-        function applySpeedup(time, type) {
-            let speedup = speedupValues[type] || 0;
-            return time * (1 - speedup / 100);
-        }
-
-        function formatTime(seconds) {
-            let days = Math.floor(seconds / 86400);
-            seconds %= 86400;
-            let hours = Math.floor(seconds / 3600);
-            seconds %= 3600;
-            let minutes = Math.floor(seconds / 60);
-            seconds = Math.floor(seconds % 60);
-            return `${days}d ${hours}h ${minutes}m ${seconds}s`;
-        }
-
-        function updateBasketSummary() {
-            let basketList = document.getElementById('basket-list');
-            basketList.innerHTML = '';
-            let totalItems = {};
-            let totalCosts = {};
-            let totalPower = 0;
-            let totalTime = 0;
-        
-            basket.forEach((item, index) => {
-                let adjustedTime = calculateAdjustedTime(item.time, item.type);
-                let listItem = document.createElement('li');
-                listItem.innerHTML = `${item.type}: ${item.name} (Level ${item.level})
-                    <button onclick="removeFromPlan(${index})">Remove from Plan</button>`;
-                basketList.appendChild(listItem);
-        
-                // Calculate total items, costs, power, and time
-                if (!totalItems[item.type]) {
-                    totalItems[item.type] = 0;
-                }
-                totalItems[item.type] += 1;
-        
-                for (let key in item.build_cost) {
-                    if (!totalCosts[key]) {
-                        totalCosts[key] = 0;
-                    }
-                    totalCosts[key] += item.build_cost[key];
-                }
-                totalPower += item.power;
-                totalTime += parseTimeToSeconds(adjustedTime);
-            });
-        
-            let basketSummary = document.getElementById('basket-summary');
-            basketSummary.textContent = `Total items in plan: ${basket.length}`;
-        
-            let subtotalText = `Subtotal: `;
-            subtotalText += Object.keys(totalCosts).map(key => 
-                `<img src='./images/${key}.png' alt='${key}' title='${key}' style='width: 20px; height: 20px;'> ${totalCosts[key]}`
-            ).join(' ');
-            subtotalText += ` | Total Power: ${totalPower} | Total Time: ${formatTime(totalTime)}`;
-        
-            let basketSubtotal = document.getElementById('basket-subtotal');
-            basketSubtotal.innerHTML = subtotalText;
-        }
-
-        function removeFromPlan(index) {
-            basket.splice(index, 1);
-            localStorage.setItem('basket', JSON.stringify(basket));
-            updateBasketSummary();
-        }
-
-        function toggleBasket() {
-            const basket = document.getElementById('shopping-basket');
-            basket.style.display = basket.style.display === 'none' || basket.style.display === '' ? 'block' : 'none';
-        }
-
-        function parseTimeToSeconds(time) {
-            if (!time) return 0;
-
-            // Split day part from the time if present
-            let [dayPart, timePart] = time.split('d ');
-            let days = parseInt(dayPart) || 0;
-
-            let hours = 0, minutes = 0, seconds = 0;
-            if (timePart) {
-                const timeParts = timePart.split(':');
-                if (timeParts.length === 3) {
-                    hours = parseInt(timeParts[0]) || 0;
-                    minutes = parseInt(timeParts[1]) || 0;
-                    seconds = parseInt(timeParts[2]) || 0;
-                }
-            }
-
-            // Calculate total seconds
-            return days * 86400 + hours * 3600 + minutes * 60 + seconds;
-        }
-
-        function formatTime(seconds) {
-            if (isNaN(seconds)) return 'N/A';
-            const days = Math.floor(seconds / 86400);
-            seconds %= 86400;
-            const hours = Math.floor(seconds / 3600);
-            seconds %= 3600;
-            const minutes = Math.floor(seconds / 60);
-            seconds %= 60;
-            return `${days}d ${hours}h ${minutes}m ${seconds}s`;
-        }
-
-        function calculateAdjustedTime(time, type) {
-            if (!time) return 'N/A';
-            let timeInSeconds = parseTimeToSeconds(time);
-            let speedup = speedupValues[type] / 100;
-            let adjustedTimeInSeconds = timeInSeconds / (1 + speedup);
-            return formatTime(adjustedTimeInSeconds);
-        }
-
-        function storeSpeedup(type) {
-            let value = parseFloat(document.getElementById(`${type}-speedup`).value) || 0;
-            speedupValues[type] = value;
-            localStorage.setItem(`${type}_speedup`, value);
-            updateBasketSummary();
-        }
-
-        function showSection(section) {
-            const sections = document.querySelectorAll('.section');
-            const tabs = document.querySelectorAll('.tab');
-            sections.forEach(sec => sec.classList.remove('active'));
-            tabs.forEach(tab => tab.classList.remove('active'));
-            document.getElementById(section).classList.add('active');
-            document.querySelector(`.tab[onclick="showSection('${section}')"]`).classList.add('active');
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            fetchData();
-            updateBasketSummary();
-            document.getElementById('construction-speedup').value = speedupValues.construction;
-            document.getElementById('research-speedup').value = speedupValues.research;
-            document.getElementById('troop-speedup').value = speedupValues.troop;
-        });
-    </script>
 </body>
 </html>
