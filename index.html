@@ -8,19 +8,33 @@
         body {
             font-family: Arial, sans-serif;
         }
-        .container {
-            margin: 20px;
+        .tab {
+            display: none;
+        }
+        .tab.active {
+            display: block;
+        }
+        .tab-buttons {
+            margin-bottom: 20px;
+        }
+        .tab-buttons button {
+            padding: 10px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        .item-list {
+            margin-bottom: 10px;
+        }
+        .item-list img {
+            width: 16px;
+            height: 16px;
+            margin-right: 5px;
+        }
+        .search-bar {
+            margin-bottom: 10px;
         }
         .form-group {
             margin-bottom: 10px;
-        }
-        label {
-            display: block;
-            font-weight: bold;
-        }
-        input[type="number"], select {
-            padding: 5px;
-            margin-right: 10px;
         }
         .resource-group {
             display: flex;
@@ -50,89 +64,137 @@
 <div class="container">
     <h1>Game Planning Calculator</h1>
 
-    <!-- Speedup Inputs -->
-    <div class="form-group">
-        <label for="construction-day">Construction Speedup (Days/Hours/Minutes/Seconds):</label>
-        <input type="number" id="construction-day" placeholder="Days" min="0">
-        <input type="number" id="construction-hour" placeholder="Hours" min="0" max="23">
-        <input type="number" id="construction-minute" placeholder="Minutes" min="0" max="59">
-        <input type="number" id="construction-second" placeholder="Seconds" min="0" max="59">
+    <!-- Tab Buttons -->
+    <div class="tab-buttons">
+        <button onclick="openTab('main')">Main Inputs</button>
+        <button onclick="openTab('buildings')">Buildings</button>
+        <button onclick="openTab('research_growth')">Research (Growth)</button>
+        <button onclick="openTab('research_economy')">Research (Economy)</button>
+        <button onclick="openTab('research_battle')">Research (Battle)</button>
+        <button onclick="openTab('troops')">Troops</button>
     </div>
 
-    <div class="form-group">
-        <label for="research-day">Research Speedup (Days/Hours/Minutes/Seconds):</label>
-        <input type="number" id="research-day" placeholder="Days" min="0">
-        <input type="number" id="research-hour" placeholder="Hours" min="0" max="23">
-        <input type="number" id="research-minute" placeholder="Minutes" min="0" max="59">
-        <input type="number" id="research-second" placeholder="Seconds" min="0" max="59">
+    <!-- Main Inputs Tab (Phase 1) -->
+    <div id="main" class="tab active">
+        <h2>Main Inputs</h2>
+        <div class="form-group">
+            <label for="construction-day">Construction Speedup (Days/Hours/Minutes/Seconds):</label>
+            <input type="number" id="construction-day" placeholder="Days" min="0">
+            <input type="number" id="construction-hour" placeholder="Hours" min="0" max="23">
+            <input type="number" id="construction-minute" placeholder="Minutes" min="0" max="59">
+            <input type="number" id="construction-second" placeholder="Seconds" min="0" max="59">
+        </div>
+
+        <div class="form-group">
+            <label for="research-day">Research Speedup (Days/Hours/Minutes/Seconds):</label>
+            <input type="number" id="research-day" placeholder="Days" min="0">
+            <input type="number" id="research-hour" placeholder="Hours" min="0" max="23">
+            <input type="number" id="research-minute" placeholder="Minutes" min="0" max="59">
+            <input type="number" id="research-second" placeholder="Seconds" min="0" max="59">
+        </div>
+
+        <div class="form-group">
+            <label for="training-day">Training Speedup (Days/Hours/Minutes/Seconds):</label>
+            <input type="number" id="training-day" placeholder="Days" min="0">
+            <input type="number" id="training-hour" placeholder="Hours" min="0" max="23">
+            <input type="number" id="training-minute" placeholder="Minutes" min="0" max="59">
+            <input type="number" id="training-second" placeholder="Seconds" min="0" max="59">
+        </div>
+
+        <div class="form-group">
+            <label for="troop-tier">Highest Troop Tier:</label>
+            <select id="troop-tier">
+                <option value="T1">T1</option>
+                <option value="T2">T2</option>
+                <option value="T3">T3</option>
+                <option value="T4">T4</option>
+                <option value="T5">T5</option>
+                <option value="T6">T6</option>
+                <option value="T7">T7</option>
+                <option value="T8">T8</option>
+                <option value="T9">T9</option>
+                <option value="T10">T10</option>
+            </select>
+        </div>
+
+        <h3>Resources</h3>
+        <div class="resource-group">
+            <img src="../images/meat.png" alt="Meat">
+            <input type="number" id="resource-meat" placeholder="Meat" min="0">
+        </div>
+
+        <div class="resource-group">
+            <img src="../images/wood.png" alt="Wood">
+            <input type="number" id="resource-wood" placeholder="Wood" min="0">
+        </div>
+
+        <div class="resource-group">
+            <img src="../images/coal.png" alt="Coal">
+            <input type="number" id="resource-coal" placeholder="Coal" min="0">
+        </div>
+
+        <div class="resource-group">
+            <img src="../images/iron.png" alt="Iron">
+            <input type="number" id="resource-iron" placeholder="Iron" min="0">
+        </div>
+
+        <div class="resource-group">
+            <img src="../images/steel.png" alt="Steel">
+            <input type="number" id="resource-steel" placeholder="Steel" min="0">
+        </div>
+
+        <div class="resource-group">
+            <img src="../images/fire_crystals.png" alt="Fire Crystals">
+            <input type="number" id="resource-fire-crystals" placeholder="Fire Crystals" min="0">
+        </div>
+
+        <button onclick="saveInputs()">Save</button>
     </div>
 
-    <div class="form-group">
-        <label for="training-day">Training Speedup (Days/Hours/Minutes/Seconds):</label>
-        <input type="number" id="training-day" placeholder="Days" min="0">
-        <input type="number" id="training-hour" placeholder="Hours" min="0" max="23">
-        <input type="number" id="training-minute" placeholder="Minutes" min="0" max="59">
-        <input type="number" id="training-second" placeholder="Seconds" min="0" max="59">
+    <!-- Tabs for Phase 2 (Buildings, Research, Troops) -->
+    <div id="buildings" class="tab">
+        <h2>Buildings</h2>
+        <input type="text" id="search-buildings" class="search-bar" placeholder="Search Buildings..." oninput="filterItems('buildings')">
+        <div id="buildings-list"></div>
     </div>
 
-    <!-- Troop Tier Selection -->
-    <div class="form-group">
-        <label for="troop-tier">Highest Troop Tier:</label>
-        <select id="troop-tier">
-            <option value="T1">T1</option>
-            <option value="T2">T2</option>
-            <option value="T3">T3</option>
-            <option value="T4">T4</option>
-            <option value="T5">T5</option>
-            <option value="T6">T6</option>
-            <option value="T7">T7</option>
-            <option value="T8">T8</option>
-            <option value="T9">T9</option>
-            <option value="T10">T10</option>
-        </select>
+    <div id="research_growth" class="tab">
+        <h2>Research (Growth)</h2>
+        <input type="text" id="search-research-growth" class="search-bar" placeholder="Search Research (Growth)..." oninput="filterItems('research_growth')">
+        <div id="research-growth-list"></div>
     </div>
 
-    <!-- Resource Inputs -->
-    <h3>Resources</h3>
-    <div class="resource-group">
-        <img src="../images/meat.png" alt="Meat">
-        <input type="number" id="resource-meat" placeholder="Meat" min="0">
+    <div id="research_economy" class="tab">
+        <h2>Research (Economy)</h2>
+        <input type="text" id="search-research-economy" class="search-bar" placeholder="Search Research (Economy)..." oninput="filterItems('research_economy')">
+        <div id="research-economy-list"></div>
     </div>
 
-    <div class="resource-group">
-        <img src="../images/wood.png" alt="Wood">
-        <input type="number" id="resource-wood" placeholder="Wood" min="0">
+    <div id="research_battle" class="tab">
+        <h2>Research (Battle)</h2>
+        <input type="text" id="search-research-battle" class="search-bar" placeholder="Search Research (Battle)..." oninput="filterItems('research_battle')">
+        <div id="research-battle-list"></div>
     </div>
 
-    <div class="resource-group">
-        <img src="../images/coal.png" alt="Coal">
-        <input type="number" id="resource-coal" placeholder="Coal" min="0">
+    <div id="troops" class="tab">
+        <h2>Troops</h2>
+        <input type="text" id="search-troops" class="search-bar" placeholder="Search Troops..." oninput="filterItems('troops')">
+        <div id="troops-list"></div>
     </div>
 
-    <div class="resource-group">
-        <img src="../images/iron.png" alt="Iron">
-        <input type="number" id="resource-iron" placeholder="Iron" min="0">
-    </div>
-
-    <div class="resource-group">
-        <img src="../images/steel.png" alt="Steel">
-        <input type="number" id="resource-steel" placeholder="Steel" min="0">
-    </div>
-
-    <div class="resource-group">
-        <img src="../images/fire_crystals.png" alt="Fire Crystals">
-        <input type="number" id="resource-fire-crystals" placeholder="Fire Crystals" min="0">
-    </div>
-
-    <button onclick="saveInputs()">Save</button>
+    <button id="plan-button">View Plan</button>
 </div>
 
-<!-- Plan Button -->
-<button id="plan-button">View Plan</button>
-
 <script>
+    // Basic tab switching logic
+    function openTab(tabName) {
+        const tabs = document.querySelectorAll('.tab');
+        tabs.forEach(tab => tab.classList.remove('active'));
+        document.getElementById(tabName).classList.add('active');
+    }
+
+    // Save main inputs to local storage
     function saveInputs() {
-        // Save speedups and troop tier to local storage
         const construction = {
             day: document.getElementById('construction-day').value,
             hour: document.getElementById('construction-hour').value,
@@ -154,7 +216,6 @@
 
         const troopTier = document.getElementById('troop-tier').value;
 
-        // Save resources to local storage
         const resources = {
             meat: document.getElementById('resource-meat').value,
             wood: document.getElementById('resource-wood').value,
@@ -187,14 +248,14 @@
             document.getElementById('construction-minute').value = construction.minute;
             document.getElementById('construction-second').value = construction.second;
         }
-        
+
         if (research) {
             document.getElementById('research-day').value = research.day;
             document.getElementById('research-hour').value = research.hour;
             document.getElementById('research-minute').value = research.minute;
             document.getElementById('research-second').value = research.second;
         }
-        
+
         if (training) {
             document.getElementById('training-day').value = training.day;
             document.getElementById('training-hour').value = training.hour;
@@ -215,6 +276,74 @@
             document.getElementById('resource-fire-crystals').value = resources.fireCrystals;
         }
     };
+
+    // JSON data loading and display (for Phase 2)
+    let buildingsData = [];
+    let researchGrowthData = [];
+    let researchEconomyData = [];
+    let researchBattleData = [];
+    let troopsData = [];
+
+    async function loadData() {
+        buildingsData = await fetch('/mnt/data/building.json').then(res => res.json());
+        researchGrowthData = await fetch('/mnt/data/research_g.json').then(res => res.json());
+        researchEconomyData = await fetch('/mnt/data/research_e.json').then(res => res.json());
+        researchBattleData = await fetch('/mnt/data/research_b.json').then(res => res.json());
+        troopsData = await fetch('/mnt/data/troops.json').then(res => res.json());
+
+        displayItems('buildings', buildingsData);
+        displayItems('research_growth', researchGrowthData);
+        displayItems('research_economy', researchEconomyData);
+        displayItems('research_battle', researchBattleData);
+        displayItems('troops', troopsData);
+    }
+
+    function displayItems(tabId, data) {
+        const listContainer = document.getElementById(`${tabId}-list`);
+        listContainer.innerHTML = '';
+
+        data.forEach(item => {
+            const itemDiv = document.createElement('div');
+            itemDiv.classList.add('item-list');
+            itemDiv.innerHTML = `
+                <img src="../images/${getResourceIcon(item.build_cost)}.png" alt="${item.name}">
+                <strong>${item.name} (Level ${item.level})</strong>
+                <span>Cost: ${formatBuildCost(item.build_cost)}</span>
+                <span>Time: ${item.time}</span>
+                <span>Power: ${item.power}</span>
+                <button onclick="addToPlan('${item.name}')">Add to Plan</button>
+            `;
+            listContainer.appendChild(itemDiv);
+        });
+    }
+
+    function filterItems(tabId) {
+        const searchTerm = document.getElementById(`search-${tabId}`).value.toLowerCase();
+        const data = eval(`${tabId}Data`);
+        const filteredData = data.filter(item => item.name.toLowerCase().includes(searchTerm));
+        displayItems(tabId, filteredData);
+    }
+
+    function formatBuildCost(cost) {
+        return `Meat: ${cost.meat || 0}, Wood: ${cost.wood || 0}, Coal: ${cost.coal || 0}, Iron: ${cost.iron || 0}, Steel: ${cost.steel || 0}, Fire Crystals: ${cost.fire_crystals || 0}`;
+    }
+
+    function getResourceIcon(cost) {
+        if (cost.meat) return 'meat';
+        if (cost.wood) return 'wood';
+        if (cost.coal) return 'coal';
+        if (cost.iron) return 'iron';
+        if (cost.steel) return 'steel';
+        if (cost.fire_crystals) return 'fire_crystals';
+        return 'default';
+    }
+
+    function addToPlan(itemName) {
+        alert(`${itemName} added to Plan!`);
+    }
+
+    loadData();
+    openTab('main');
 </script>
 
 </body>
