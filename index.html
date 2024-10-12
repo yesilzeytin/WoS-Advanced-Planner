@@ -22,6 +22,16 @@
             padding: 5px;
             margin-right: 10px;
         }
+        .resource-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .resource-group img {
+            width: 16px;
+            height: 16px;
+            margin-right: 5px;
+        }
         #plan-button {
             position: fixed;
             bottom: 20px;
@@ -40,6 +50,7 @@
 <div class="container">
     <h1>Game Planning Calculator</h1>
 
+    <!-- Speedup Inputs -->
     <div class="form-group">
         <label for="construction-day">Construction Speedup (Days/Hours/Minutes/Seconds):</label>
         <input type="number" id="construction-day" placeholder="Days" min="0">
@@ -64,6 +75,7 @@
         <input type="number" id="training-second" placeholder="Seconds" min="0" max="59">
     </div>
 
+    <!-- Troop Tier Selection -->
     <div class="form-group">
         <label for="troop-tier">Highest Troop Tier:</label>
         <select id="troop-tier">
@@ -80,9 +92,42 @@
         </select>
     </div>
 
+    <!-- Resource Inputs -->
+    <h3>Resources</h3>
+    <div class="resource-group">
+        <img src="../images/meat.png" alt="Meat">
+        <input type="number" id="resource-meat" placeholder="Meat" min="0">
+    </div>
+
+    <div class="resource-group">
+        <img src="../images/wood.png" alt="Wood">
+        <input type="number" id="resource-wood" placeholder="Wood" min="0">
+    </div>
+
+    <div class="resource-group">
+        <img src="../images/coal.png" alt="Coal">
+        <input type="number" id="resource-coal" placeholder="Coal" min="0">
+    </div>
+
+    <div class="resource-group">
+        <img src="../images/iron.png" alt="Iron">
+        <input type="number" id="resource-iron" placeholder="Iron" min="0">
+    </div>
+
+    <div class="resource-group">
+        <img src="../images/steel.png" alt="Steel">
+        <input type="number" id="resource-steel" placeholder="Steel" min="0">
+    </div>
+
+    <div class="resource-group">
+        <img src="../images/fire_crystals.png" alt="Fire Crystals">
+        <input type="number" id="resource-fire-crystals" placeholder="Fire Crystals" min="0">
+    </div>
+
     <button onclick="saveInputs()">Save</button>
 </div>
 
+<!-- Plan Button -->
 <button id="plan-button">View Plan</button>
 
 <script>
@@ -109,13 +154,67 @@
 
         const troopTier = document.getElementById('troop-tier').value;
 
+        // Save resources to local storage
+        const resources = {
+            meat: document.getElementById('resource-meat').value,
+            wood: document.getElementById('resource-wood').value,
+            coal: document.getElementById('resource-coal').value,
+            iron: document.getElementById('resource-iron').value,
+            steel: document.getElementById('resource-steel').value,
+            fireCrystals: document.getElementById('resource-fire-crystals').value
+        };
+
         localStorage.setItem('speedup-construction', JSON.stringify(construction));
         localStorage.setItem('speedup-research', JSON.stringify(research));
         localStorage.setItem('speedup-training', JSON.stringify(training));
         localStorage.setItem('troop-tier', troopTier);
+        localStorage.setItem('resources', JSON.stringify(resources));
 
         alert('Inputs saved!');
     }
+
+    // Load saved inputs from local storage when the page loads
+    window.onload = function() {
+        const construction = JSON.parse(localStorage.getItem('speedup-construction'));
+        const research = JSON.parse(localStorage.getItem('speedup-research'));
+        const training = JSON.parse(localStorage.getItem('speedup-training'));
+        const troopTier = localStorage.getItem('troop-tier');
+        const resources = JSON.parse(localStorage.getItem('resources'));
+
+        if (construction) {
+            document.getElementById('construction-day').value = construction.day;
+            document.getElementById('construction-hour').value = construction.hour;
+            document.getElementById('construction-minute').value = construction.minute;
+            document.getElementById('construction-second').value = construction.second;
+        }
+        
+        if (research) {
+            document.getElementById('research-day').value = research.day;
+            document.getElementById('research-hour').value = research.hour;
+            document.getElementById('research-minute').value = research.minute;
+            document.getElementById('research-second').value = research.second;
+        }
+        
+        if (training) {
+            document.getElementById('training-day').value = training.day;
+            document.getElementById('training-hour').value = training.hour;
+            document.getElementById('training-minute').value = training.minute;
+            document.getElementById('training-second').value = training.second;
+        }
+
+        if (troopTier) {
+            document.getElementById('troop-tier').value = troopTier;
+        }
+
+        if (resources) {
+            document.getElementById('resource-meat').value = resources.meat;
+            document.getElementById('resource-wood').value = resources.wood;
+            document.getElementById('resource-coal').value = resources.coal;
+            document.getElementById('resource-iron').value = resources.iron;
+            document.getElementById('resource-steel').value = resources.steel;
+            document.getElementById('resource-fire-crystals').value = resources.fireCrystals;
+        }
+    };
 </script>
 
 </body>
