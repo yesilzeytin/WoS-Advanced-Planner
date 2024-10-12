@@ -2,6 +2,7 @@
 
 // Function to save inputs (construction, research, training, resources)
 function saveInputs() {
+    console.log("Save button clicked");
     const construction = {
         day: document.getElementById('construction-day').value,
         hour: document.getElementById('construction-hour').value,
@@ -41,7 +42,7 @@ function saveInputs() {
     localStorage.setItem('speedup-training', JSON.stringify(training));
     localStorage.setItem('resources', JSON.stringify(resources));
 
-    // Provide feedback to the user
+    console.log("Inputs saved to localStorage");
     alert('Inputs saved!');
 }
 
@@ -88,8 +89,16 @@ function loadInputs() {
 
 // Bind the save button to the saveInputs function on page load
 window.onload = function() {
+    console.log("Page is loaded");
+
     loadInputs(); // Load inputs when the page loads
 
     // Attach the saveInputs function to the Save button
-    document.getElementById('save-button').addEventListener('click', saveInputs);
+    const saveButton = document.getElementById('save-button');
+    if (saveButton) {
+        console.log("Save button found, adding event listener");
+        saveButton.addEventListener('click', saveInputs);
+    } else {
+        console.error("Save button not found");
+    }
 };
