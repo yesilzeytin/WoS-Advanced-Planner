@@ -2,6 +2,7 @@
     {
         "name": "Rookie Infantry (T1)",
         "level": "1",
+        "type": "infantry",
         "build_cost": {
             "meat": 36,
             "wood": 27,
@@ -15,6 +16,7 @@
     {
         "name": "Trained Infantry (T2)",
         "level": "2",
+        "type": "infantry",
         "build_cost": {
             "meat": 58,
             "wood": 44,
@@ -23,5 +25,33 @@
         },
         "time": "0d 00:00:15",
         "power": 4
+    },
+
+    {
+        "name": "Rookie Lancer (T1)",
+        "level": "1",
+        "type": "lancer",
+        "build_cost": {
+            "meat": 99,
+            "wood": 99,
+            "coal": 99,
+            "iron": 9
+        },
+        "time": "0d 00:00:09",
+        "power": 3
+    },
+
+    {
+        "name": "Rookie Marksman (T1)",
+        "level": "1",
+        "type": "marksman",
+        "build_cost": {
+            "meat": 88,
+            "wood": 88,
+            "coal": 88,
+            "iron": 8
+        },
+        "time": "0d 00:00:09",
+        "power": 3
     }
 ]
