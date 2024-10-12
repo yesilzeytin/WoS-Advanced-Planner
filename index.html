@@ -57,6 +57,22 @@
             border-radius: 5px;
             cursor: pointer;
         }
+        /* Plan Popup Style */
+        #plan-popup {
+            display: none;
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 300px;
+            background-color: white;
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        #plan-popup h3 {
+            margin-top: 0;
+        }
     </style>
 </head>
 <body>
@@ -77,6 +93,8 @@
     <!-- Main Inputs Tab (Phase 1) -->
     <div id="main" class="tab active">
         <h2>Main Inputs</h2>
+
+        <!-- Speedup Inputs -->
         <div class="form-group">
             <label for="construction-day">Construction Speedup (Days/Hours/Minutes/Seconds):</label>
             <input type="number" id="construction-day" placeholder="Days" min="0">
@@ -101,6 +119,7 @@
             <input type="number" id="training-second" placeholder="Seconds" min="0" max="59">
         </div>
 
+        <!-- Troop Tier Selection -->
         <div class="form-group">
             <label for="troop-tier">Highest Troop Tier:</label>
             <select id="troop-tier">
@@ -117,6 +136,7 @@
             </select>
         </div>
 
+        <!-- Resource Inputs -->
         <h3>Resources</h3>
         <div class="resource-group">
             <img src="../images/meat.png" alt="Meat">
@@ -182,15 +202,30 @@
         <div id="troops-list"></div>
     </div>
 
-    <button id="plan-button">View Plan</button>
+    <!-- Plan Button and Popup -->
+    <button id="plan-button" onclick="togglePlanPopup()">View Plan</button>
+    <div id="plan-popup">
+        <h3>Plan</h3>
+        <div id="plan-content">No items added to Plan yet.</div>
+    </div>
 </div>
 
 <script>
-    // Basic tab switching logic
+    // Tab switching
     function openTab(tabName) {
         const tabs = document.querySelectorAll('.tab');
         tabs.forEach(tab => tab.classList.remove('active'));
         document.getElementById(tabName).classList.add('active');
+    }
+
+    // Toggle Plan Popup
+    function togglePlanPopup() {
+        const planPopup = document.getElementById('plan-popup');
+        if (planPopup.style.display === 'none' || planPopup.style.display === '') {
+            planPopup.style.display = 'block';
+        } else {
+            planPopup.style.display = 'none';
+        }
     }
 
     // Save main inputs to local storage
@@ -283,13 +318,14 @@
     let researchEconomyData = [];
     let researchBattleData = [];
     let troopsData = [];
+    let planItems = [];
 
     async function loadData() {
-        buildingsData = await fetch('./data/building.json').then(res => res.json());
-        researchGrowthData = await fetch('./data/research_g.json').then(res => res.json());
-        researchEconomyData = await fetch('./data/research_e.json').then(res => res.json());
-        researchBattleData = await fetch('./data/research_b.json').then(res => res.json());
-        troopsData = await fetch('./data/troops.json').then(res => res.json());
+        buildingsData = await fetch('/mnt/data/building.json').then(res => res.json());
+        researchGrowthData = await fetch('/mnt/data/research_g.json').then(res => res.json());
+        researchEconomyData = await fetch('/mnt/data/research_e.json').then(res => res.json());
+        researchBattleData = await fetch('/mnt/data/research_b.json').then(res => res.json());
+        troopsData = await fetch('/mnt/data/troops.json').then(res => res.json());
 
         displayItems('buildings', buildingsData);
         displayItems('research_growth', researchGrowthData);
@@ -300,6 +336,7 @@
 
     function displayItems(tabId, data) {
         const listContainer = document.getElementById(`${tabId}-list`);
+        if (!listContainer) return; // Avoid the error if the list doesn't exist
         listContainer.innerHTML = '';
 
         data.forEach(item => {
@@ -311,7 +348,7 @@
                 <span>Cost: ${formatBuildCost(item.build_cost)}</span>
                 <span>Time: ${item.time}</span>
                 <span>Power: ${item.power}</span>
-                <button onclick="addToPlan('${item.name}')">Add to Plan</button>
+                <button onclick="addToPlan('${item.name}', ${item.power}, '${tabId}')">Add to Plan</button>
             `;
             listContainer.appendChild(itemDiv);
         });
@@ -338,8 +375,27 @@
         return 'default';
     }
 
-    function addToPlan(itemName) {
-        alert(`${itemName} added to Plan!`);
+    function addToPlan(itemName, power, tabId) {
+        planItems.push({ itemName, power, tabId });
+        updatePlanView();
+    }
+
+    function updatePlanView() {
+        const planContent = document.getElementById('plan-content');
+        if (planItems.length === 0) {
+            planContent.innerHTML = 'No items added to Plan yet.';
+        } else {
+            planContent.innerHTML = planItems.map(item => `
+                <div>${item.itemName} (Power: ${item.power}) - From ${item.tabId} Tab
+                    <button onclick="removeFromPlan('${item.itemName}')">Remove</button>
+                </div>
+            `).join('');
+        }
+    }
+
+    function removeFromPlan(itemName) {
+        planItems = planItems.filter(item => item.itemName !== itemName);
+        updatePlanView();
     }
 
     loadData();
