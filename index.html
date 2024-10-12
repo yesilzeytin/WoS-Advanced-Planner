@@ -73,6 +73,11 @@
         #plan-popup h3 {
             margin-top: 0;
         }
+        /* Input field for troop count */
+        .troop-count {
+            width: 60px;
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
@@ -101,6 +106,7 @@
             <input type="number" id="construction-hour" placeholder="Hours" min="0" max="23">
             <input type="number" id="construction-minute" placeholder="Minutes" min="0" max="59">
             <input type="number" id="construction-second" placeholder="Seconds" min="0" max="59">
+            <input type="number" id="construction-bonus" placeholder="Bonus %" min="0" max="100">
         </div>
 
         <div class="form-group">
@@ -109,6 +115,7 @@
             <input type="number" id="research-hour" placeholder="Hours" min="0" max="23">
             <input type="number" id="research-minute" placeholder="Minutes" min="0" max="59">
             <input type="number" id="research-second" placeholder="Seconds" min="0" max="59">
+            <input type="number" id="research-bonus" placeholder="Bonus %" min="0" max="100">
         </div>
 
         <div class="form-group">
@@ -117,6 +124,7 @@
             <input type="number" id="training-hour" placeholder="Hours" min="0" max="23">
             <input type="number" id="training-minute" placeholder="Minutes" min="0" max="59">
             <input type="number" id="training-second" placeholder="Seconds" min="0" max="59">
+            <input type="number" id="training-bonus" placeholder="Bonus %" min="0" max="100">
         </div>
 
         <!-- Troop Tier Selection -->
@@ -234,19 +242,22 @@
             day: document.getElementById('construction-day').value,
             hour: document.getElementById('construction-hour').value,
             minute: document.getElementById('construction-minute').value,
-            second: document.getElementById('construction-second').value
+            second: document.getElementById('construction-second').value,
+            bonus: document.getElementById('construction-bonus').value
         };
         const research = {
             day: document.getElementById('research-day').value,
             hour: document.getElementById('research-hour').value,
             minute: document.getElementById('research-minute').value,
-            second: document.getElementById('research-second').value
+            second: document.getElementById('research-second').value,
+            bonus: document.getElementById('research-bonus').value
         };
         const training = {
             day: document.getElementById('training-day').value,
             hour: document.getElementById('training-hour').value,
             minute: document.getElementById('training-minute').value,
-            second: document.getElementById('training-second').value
+            second: document.getElementById('training-second').value,
+            bonus: document.getElementById('training-bonus').value
         };
 
         const troopTier = document.getElementById('troop-tier').value;
@@ -282,6 +293,7 @@
             document.getElementById('construction-hour').value = construction.hour;
             document.getElementById('construction-minute').value = construction.minute;
             document.getElementById('construction-second').value = construction.second;
+            document.getElementById('construction-bonus').value = construction.bonus;
         }
 
         if (research) {
@@ -289,6 +301,7 @@
             document.getElementById('research-hour').value = research.hour;
             document.getElementById('research-minute').value = research.minute;
             document.getElementById('research-second').value = research.second;
+            document.getElementById('research-bonus').value = research.bonus;
         }
 
         if (training) {
@@ -296,6 +309,7 @@
             document.getElementById('training-hour').value = training.hour;
             document.getElementById('training-minute').value = training.minute;
             document.getElementById('training-second').value = training.second;
+            document.getElementById('training-bonus').value = training.bonus;
         }
 
         if (troopTier) {
@@ -344,11 +358,12 @@
             itemDiv.classList.add('item-list');
             itemDiv.innerHTML = `
                 <img src="./images/${getResourceIcon(item.build_cost)}.png" alt="${item.name}">
-                <strong>${item.name} (Level ${item.level})</strong>
+                <strong>${item.name} (${item.type}) (Level ${item.level})</strong>
                 <span>Cost: ${formatBuildCost(item.build_cost)}</span>
                 <span>Time: ${item.time}</span>
                 <span>Power: ${item.power}</span>
-                <button onclick="addToPlan('${item.name}', ${item.power}, '${tabId}')">Add to Plan</button>
+                ${item.type === 'Troop' ? `<input type="number" class="troop-count" placeholder="Count" min="1">` : ''}
+                <button onclick="addToPlan('${item.name}', ${item.power}, '${tabId}', ${item.level})">Add to Plan</button>
             `;
             listContainer.appendChild(itemDiv);
         });
@@ -375,8 +390,14 @@
         return 'default';
     }
 
-    function addToPlan(itemName, power, tabId) {
-        planItems.push({ itemName, power, tabId });
+    function addToPlan(itemName, power, tabId, level) {
+        // Prevent duplicate additions of same item (e.g., Furnace Level 30-1)
+        if (planItems.some(item => item.name === itemName && item.level === level)) {
+            alert(`${itemName} (Level ${level}) is already in the Plan.`);
+            return;
+        }
+
+        planItems.push({ name: itemName, power, tabId, level });
         updatePlanView();
     }
 
@@ -386,15 +407,15 @@
             planContent.innerHTML = 'No items added to Plan yet.';
         } else {
             planContent.innerHTML = planItems.map(item => `
-                <div>${item.itemName} (Power: ${item.power}) - From ${item.tabId} Tab
-                    <button onclick="removeFromPlan('${item.itemName}')">Remove</button>
+                <div>${item.name} (Power: ${item.power}) - From ${item.tabId} Tab
+                    <button onclick="removeFromPlan('${item.name}', ${item.level})">Remove</button>
                 </div>
             `).join('');
         }
     }
 
-    function removeFromPlan(itemName) {
-        planItems = planItems.filter(item => item.itemName !== itemName);
+    function removeFromPlan(itemName, level) {
+        planItems = planItems.filter(item => item.name !== itemName || item.level !== level);
         updatePlanView();
     }
 
