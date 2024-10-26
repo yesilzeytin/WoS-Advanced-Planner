@@ -583,7 +583,6 @@
             const content = document.getElementById('content');
             content.innerHTML = ''; // Clear previous content
 
-            // Retrieve saved speedups
             const constructionData = JSON.parse(localStorage.getItem('constructionData')) || {};
             const researchData = JSON.parse(localStorage.getItem('researchData')) || {};
             const troopData = JSON.parse(localStorage.getItem('troopData')) || {};
@@ -594,8 +593,6 @@
 
             items.forEach(item => {
                 let speedup = 0;
-
-                // Determine speedup based on item type
                 if (tabName === 'building') {
                     speedup = constructionSpeedup;
                 } else if (tabName.startsWith('research')) {
@@ -604,17 +601,17 @@
                     speedup = trainingSpeedup;
                 }
 
-                // Calculate adjusted time
                 const adjustedTime = getAdjustedTime(item.time, speedup);
 
-                // Display item with adjusted time
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'item';
+
                 itemDiv.innerHTML = `
                     <h3>${item.name} (Level ${item.level})</h3>
                     <p>Power: ${item.power}</p>
                     <p>Adjusted Time: ${adjustedTime.days}d ${adjustedTime.hours}h ${adjustedTime.minutes}m ${adjustedTime.seconds}s</p>
                     <p>Cost: Meat: ${item.build_cost.meat}, Wood: ${item.build_cost.wood}, Coal: ${item.build_cost.coal}, Iron: ${item.build_cost.iron}</p>
+                    ${tabName.startsWith('troops') ? `<input type="number" id="${item.name}-quantity" min="1" placeholder="Quantity" style="width: 50px;">` : ''}
                     <button onclick="addToPlan('${tabName}', '${item.name}', '${item.level}')">Add</button>
                 `;
                 content.appendChild(itemDiv);
@@ -623,19 +620,27 @@
 
         // Add item to the Plan basket
         function addToPlan(tabName, itemName, level) {
-            // Retrieve the correct items array by referencing the globally stored data
-            const fetchedItems = window.fetchedData[tabName] || [];
+            const isTroop = tabName.startsWith('troops');
+            const quantity = isTroop ? parseInt(document.getElementById(`${itemName}-quantity`).value) || 1 : 1;
 
+            const fetchedItems = window.fetchedData[tabName] || [];
             const itemToAdd = fetchedItems.find(i => i.name === itemName && i.level === level);
-            
+
             if (itemToAdd) {
-                console.log("Adding item to plan:", itemToAdd); // Log to ensure item structure is correct
-                
-                // Add the item to the plan array if it is not already there (unique for buildings/researches)
-                if (!plan.items.some(i => i.name === itemToAdd.name && i.level === itemToAdd.level)) {
-                    plan.items.push(itemToAdd);
-                    updatePlanDisplay(); // Update the plan pop-up display
+                const existingItem = plan.items.find(i => i.name === itemName && i.level === level);
+
+                if (isTroop && existingItem) {
+                    // Increment quantity for existing troops
+                    existingItem.quantity += quantity;
+                } else if (isTroop) {
+                    // Add new troop item with specified quantity
+                    plan.items.push({ ...itemToAdd, quantity });
+                } else if (!existingItem) {
+                    // Add unique building/research with quantity 1
+                    plan.items.push({ ...itemToAdd, quantity: 1 });
                 }
+
+                updatePlanDisplay(); // Refresh the plan display
             } else {
                 console.error("Item not found in fetched data:", itemName, level);
             }
@@ -645,7 +650,6 @@
             const planContent = document.getElementById('plan-content');
             planContent.innerHTML = ''; // Clear existing content
 
-            // Retrieve saved bonuses from each section's data
             const constructionData = JSON.parse(localStorage.getItem('constructionData')) || {};
             const researchData = JSON.parse(localStorage.getItem('researchData')) || {};
             const troopData = JSON.parse(localStorage.getItem('troopData')) || {};
@@ -654,56 +658,45 @@
             const researchSpeedup = parseFloat(researchData.bonus) || 0;
             const trainingSpeedup = parseFloat(troopData.bonus) || 0;
 
-            console.log("Construction Speedup:", constructionSpeedup);
-            console.log("Research Speedup:", researchSpeedup);
-            console.log("Training Speedup:", trainingSpeedup);
-
             let totalResources = { meat: 0, wood: 0, coal: 0, iron: 0, fire_crystals: 0, steel: 0 };
             let totalTime = { days: 0, hours: 0, minutes: 0, seconds: 0 };
             let totalPower = 0;
 
             plan.items.forEach(item => {
-                if (!item.time) return; // Skip if time property is missing
+                if (!item.time) return;
 
-                // Determine the speedup based on item type
-                let speedup = 0;
-                if (item.type === 'building') {
-                    speedup = constructionSpeedup;
-                } else if (item.type === 'research') {
-                    speedup = researchSpeedup;
-                } else if (item.type === 'troop') {
-                    speedup = trainingSpeedup;
-                }
+                const speedup = item.type === 'building' ? constructionSpeedup :
+                                item.type === 'research' ? researchSpeedup : trainingSpeedup;
 
-                // Apply speedup to time
                 const adjustedTime = getAdjustedTime(item.time, speedup);
+                const quantity = item.quantity || 1; // Default to 1 if not defined
 
-                // Update total resources and power
-                totalResources.meat += item.build_cost.meat || 0;
-                totalResources.wood += item.build_cost.wood || 0;
-                totalResources.coal += item.build_cost.coal || 0;
-                totalResources.iron += item.build_cost.iron || 0;
-                totalResources.fire_crystals += item.build_cost.fire_crystals || 0;
-                totalResources.steel += item.build_cost.steel || 0;
-                totalPower += item.power || 0;
+                // Update total resources and power based on quantity
+                totalResources.meat += (item.build_cost.meat || 0) * quantity;
+                totalResources.wood += (item.build_cost.wood || 0) * quantity;
+                totalResources.coal += (item.build_cost.coal || 0) * quantity;
+                totalResources.iron += (item.build_cost.iron || 0) * quantity;
+                totalResources.fire_crystals += (item.build_cost.fire_crystals || 0) * quantity;
+                totalResources.steel += (item.build_cost.steel || 0) * quantity;
+                totalPower += (item.power || 0) * quantity;
 
-                // Display each item with adjusted time
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'plan-item';
+
                 itemDiv.innerHTML = `
                     <h4>${item.name} (Level ${item.level})</h4>
-                    <p>Power: ${item.power}</p>
-                    <p>Adjusted Time: ${adjustedTime.days}d ${adjustedTime.hours}h ${adjustedTime.minutes}m ${adjustedTime.seconds}s</p>
-                    <p>Cost: Meat: ${item.build_cost.meat}, Wood: ${item.build_cost.wood}, Coal: ${item.build_cost.coal}, Iron: ${item.build_cost.iron}</p>
+                    <p>Power: ${item.power * quantity}</p>
+                    <p>Adjusted Time (per unit): ${adjustedTime.days}d ${adjustedTime.hours}h ${adjustedTime.minutes}m ${adjustedTime.seconds}s</p>
+                    <p>Cost per unit: Meat: ${item.build_cost.meat}, Wood: ${item.build_cost.wood}, Coal: ${item.build_cost.coal}, Iron: ${item.build_cost.iron}</p>
+                    <p>Quantity: <input type="number" value="${quantity}" min="1" onchange="updateTroopQuantity('${item.name}', '${item.level}', this.value)"></p>
                     <button onclick="removeFromPlan('${item.name}', '${item.level}')">Remove</button>
                 `;
                 planContent.appendChild(itemDiv);
 
-                // Accumulate total adjusted time
-                totalTime = accumulateTotalTime(totalTime, adjustedTime);
+                totalTime = accumulateTotalTime(totalTime, adjustedTime, quantity);
             });
 
-            // Update total summary in the Plan
+            // Update summary as before
             const planSummary = document.getElementById('plan-summary');
             planSummary.innerHTML = `
                 <h3>Total Summary</h3>
@@ -711,6 +704,15 @@
                 <p>Total Power: ${totalPower}</p>
                 <p>Total Resources: Meat: ${totalResources.meat}, Wood: ${totalResources.wood}, Coal: ${totalResources.coal}, Iron: ${totalResources.iron}</p>
             `;
+        }
+
+        // New function to update quantity in the plan
+        function updateTroopQuantity(name, level, newQuantity) {
+            const item = plan.items.find(i => i.name === name && i.level === level);
+            if (item && item.type === 'troop') {
+                item.quantity = parseInt(newQuantity) || 1;
+                updatePlanDisplay();
+            }
         }
 
         // Helper function to accumulate total adjusted time
