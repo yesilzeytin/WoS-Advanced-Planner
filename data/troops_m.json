@@ -1,0 +1,20 @@
+[
+    {
+        "name": "Rookie Marksman (T1)",
+        "level": "1",
+        "type": "marksman",
+        "build_cost": {
+            "meat": 88,
+            "wood": 88,
+            "coal": 88,
+            "iron": 8
+        },
+        "time": {
+            "days": 0,
+            "hours": 0,
+            "minutes": 0,
+            "seconds": 9
+        },
+        "power": 3
+    }
+]
