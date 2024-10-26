@@ -626,12 +626,16 @@
             const planContent = document.getElementById('plan-content');
             planContent.innerHTML = ''; // Clear existing content
 
-            // Retrieve saved bonuses from localStorage or set defaults
-            const constructionSpeedup = parseFloat(localStorage.getItem('constructionSpeedup')) || 0;
-            const researchSpeedup = parseFloat(localStorage.getItem('researchSpeedup')) || 0;
-            const trainingSpeedup = parseFloat(localStorage.getItem('trainingSpeedup')) || 0;
+            // Retrieve saved bonuses from each section's data
+            const constructionData = JSON.parse(localStorage.getItem('constructionData')) || {};
+            const researchData = JSON.parse(localStorage.getItem('researchData')) || {};
+            const troopData = JSON.parse(localStorage.getItem('troopData')) || {};
 
-            console.log("Construction Speedup:", constructionSpeedup); // Log for verification
+            const constructionSpeedup = parseFloat(constructionData.bonus) || 0;
+            const researchSpeedup = parseFloat(researchData.bonus) || 0;
+            const trainingSpeedup = parseFloat(troopData.bonus) || 0;
+
+            console.log("Construction Speedup:", constructionSpeedup);
             console.log("Research Speedup:", researchSpeedup);
             console.log("Training Speedup:", trainingSpeedup);
 
