@@ -585,13 +585,13 @@
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'item';
 
-                // Construct item details
+                // Construct item details with the correct level in the onclick handler
                 itemDiv.innerHTML = `
                     <h3>${item.name} (Level ${item.level})</h3>
                     <p>Power: ${item.power}</p>
                     <p>Time: ${item.time.days}d ${item.time.hours}h ${item.time.minutes}m ${item.time.seconds}s</p>
                     <p>Cost: Meat: ${item.build_cost.meat}, Wood: ${item.build_cost.wood}, Coal: ${item.build_cost.coal}, Iron: ${item.build_cost.iron}</p>
-                    <button onclick="addToPlan('${tabName}', '${item.name}', ${item.level})">Add</button>
+                    <button onclick="addToPlan('${tabName}', '${item.name}', '${item.level}')">Add</button>
                 `;
 
                 content.appendChild(itemDiv);
@@ -600,16 +600,19 @@
 
         // Add item to the Plan basket
         function addToPlan(tabName, itemName, level) {
-            const item = plan.items.find(i => i.name === itemName && i.level === level);
+            // Retrieve the correct items array by referencing the items variable in scope
+            const fetchedItems = window.fetchedData[tabName] || []; // Assuming fetchedData holds data per tab
 
-            if (item) {
-                console.log("Adding item to plan:", item); // Log to ensure item structure
+            const itemToAdd = fetchedItems.find(i => i.name === itemName && i.level === level);
+            
+            if (itemToAdd) {
+                console.log("Adding item to plan:", itemToAdd); // Log to ensure item structure is correct
                 
-                // Ensure time structure is fully defined
-                item.time = item.time || { days: 0, hours: 0, minutes: 0, seconds: 0 };
-                plan.items.push(item); // Add to plan array
-
-                updatePlanDisplay(); // Update the plan pop-up display
+                // Add the item to the plan array if it is not already there (unique for buildings/researches)
+                if (!plan.items.some(i => i.name === itemToAdd.name && i.level === itemToAdd.level)) {
+                    plan.items.push(itemToAdd);
+                    updatePlanDisplay(); // Update the plan pop-up display
+                }
             } else {
                 console.error("Item not found in fetched data:", itemName, level);
             }
