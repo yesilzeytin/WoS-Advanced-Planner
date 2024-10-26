@@ -9,10 +9,14 @@
             "iron": 1100000,
             "fire_crystals": 59
         },
-        "time": "1d 01:12:00",
+        "time": {
+            "days": 1,
+            "hours": 1,
+            "minutes": 12,
+            "seconds": 0
+        },
         "power": 316180
     },
-
     {
         "name": "Furnace",
         "level": "30-2",
@@ -23,7 +27,12 @@
             "iron": 1100000,
             "fire_crystals": 59
         },
-        "time": "1d 01:12:00",
+        "time": {
+            "days": 1,
+            "hours": 1,
+            "minutes": 12,
+            "seconds": 0
+        },
         "power": 327660
     }
 ]
