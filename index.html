@@ -1,42 +1,546 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Planning Calculator</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Link to shared CSS -->
+    <title>Riyeko's Whiteout Survival Speedup Calculator</title>
+    
+    <!-- Open Graph Metadata -->
+    <meta property="og:title" content="Riyeko's Whiteout Survival Speedup Calculator">
+    <meta property="og:description" content="A handy tool for calculating and retracing speedups in Whiteout Survival.">
+    <meta property="og:image" content="https://i.ibb.co/VqGFvPp/clip1714763101232.png">
+    <meta property="og:url" content="https://yesilzeytin.github.io/WoS-Speedup-Calculator/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Riyeko's Whiteout Survival Speedup Calculator">
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-557CJ08V6R"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'G-557CJ08V6R');
+    </script>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #F9F9F9; /* Very Light Gray */
+        }
+
+        .container {
+            background-color: #FFFACD; /* Light Yellow */
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 90%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4D4D4D; /* Darker Gray */
+            width: 90%;
+            max-width: 600px;
+            margin: 0 auto 20px;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #AEC6CF; /* Light Blue */
+            color: #FFF; /* White */
+            border: none;
+            border-radius: 5px 5px 0 0;
+            margin: 0 5px;
+        }
+
+        .tab.active {
+            background-color: #F4C2C2; /* Light Pink */
+            color: #4D4D4D; /* Darker Gray */
+        }
+
+        .section {
+            display: none;
+            background-color: #FFFACD; /* Light Yellow */
+            border: 2px solid #AEC6CF; /* Light Blue */
+            border-radius: 0 0 8px 8px;
+            padding: 20px;
+        }
+
+        #construction.section {
+            background-color: #FCF1E1; /* Very Light Peach */
+        }
+
+        #research.section {
+            background-color: #FAE3E3; /* Very Light Pink */
+        }
+
+        #troop.section {
+            background-color: #E5F9E0; /* Very Light Green */
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .form-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .form-column {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        label {
+            color: #4D4D4D; /* Darker Gray */
+        }
+
+        input[type="number"] {
+            margin: 5px 0;
+            width: 100px;
+        }
+
+        input::placeholder {
+            color: grey;
+        }
+
+        .checkbox-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin: 10px 0;
+        }
+
+        button {
+            display: inline-block;
+            margin: 20px 10px 0;
+            padding: 10px 20px;
+            background-color: #AEC6CF; /* Light Blue */
+            color: #FFF; /* White */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #F4C2C2; /* Light Pink */
+            color: #4D4D4D; /* Darker Gray */
+        }
+
+        .error {
+            color: red;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .success {
+            color: green;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .base-time {
+            color: darkblue;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .retrace {
+            background-color: #ADD8E6; /* Light Blue */
+        }
+
+        .retrace:hover {
+            background-color: #87CEEB; /* Sky Blue */
+        }
+
+        .popup {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0, 0, 0, 0.5); /* Black w/ opacity */
+        }
+
+        .popup-content {
+            position: relative;
+            background-color: #FFF; /* White */
+            margin: 15% auto; /* 15% from the top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%; /* Could be more or less, depending on screen size */
+            max-width: 600px;
+            color: #4D4D4D; /* Darker Gray */
+            background: #FFFACD; /* Light Yellow */
+            text-align: center;
+        }
+
+        .close-btn {
+            color: #AAA;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close-btn:hover,
+        .close-btn:focus {
+            color: #4D4D4D; /* Darker Gray */
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .popup-content h2,
+        .popup-content h3,
+        .popup-content p,
+        .popup-content ul {
+            text-align: left; /* Ensure text is left-aligned */
+        }
+
+        .popup-content ul {
+            list-style: disc;
+            padding-left: 20px; /* Add padding to left-align the list */
+            margin-left: 0;
+        }
+
+        @media (max-width: 600px) {
+            input[type="number"] {
+                width: 40px;
+                margin: 3px;
+            }
+
+            body {
+                zoom: 1.2;
+                padding: 10px;
+            }
+        }
+    </style>
 </head>
 <body>
-
-    <div class="container">
-        <h1>Game Planning Calculator</h1>
-
-        <!-- Tab Buttons -->
-        <div class="tab-buttons">
-            <button onclick="loadTab('main-inputs.html')">Main Inputs</button>
-            <button onclick="loadTab('buildings.html')">Buildings</button>
-            <button onclick="loadTab('research-growth.html')">Research (Growth)</button>
-            <button onclick="loadTab('research-economy.html')">Research (Economy)</button>
-            <button onclick="loadTab('research-battle.html')">Research (Battle)</button>
-            <button onclick="loadTab('troops.html')">Troops</button>
+    <h1>Riyeko's Whiteout Survival Speedup Calculator</h1>
+    <div id="popup" class="popup">
+        <div class="popup-content">
+            <span class="close-btn">&times;</span>
+            <h2>Welcome to Whiteout Survival Speedup Calculator!</h2>
+            <p>
+                Hi, I am [INF] Riyeko from #1088 (formerly a proud [LEG] in 1091) who is a newbie in this game.
+                Over the short span that I was playing, I noticed that many people get confused about how speed bonuses
+                in Whiteout Survival work. Besides, even if one knows the math behind it, doing calculations for
+                future plans take a lot of time and manual arithmetics. Therefore, I decided to create this little web
+                app to help both myself and the game community to help with it. I hope it would ease the planning process
+                for you. ^^
+            </p>
+            <h3>Instructions</h3>
+            <ul>
+                <li>To look up the base times, visit <a href="https://www.whiteoutsurvival.wiki/">WoS Wiki</a> or <a href="https://whiteoutdata.com/">Whiteout Data</a>.</li>
+                <li>Enter the obtained base time to the GUI.</li>
+                <li>Enter your Speed Bonus information inside the game's "Power" menu. (format: 54.6, 89.42, etc.)</li>
+                <li>Enter your Pet Skill Bonus inside the game's "Pet Ability" menu. (format: 54.6, 89.42, etc.)</li>
+                <li>Check any bonuses' checkmarks that you plan to have when you are going to start the task (training, construction, etc.)</li>
+                <li>Click on "Calculate" button and the results will pop up under the button!</li>
+                <li>Click on "Retrace" button and your bonuses will be retraced to generate actual baseline time; so, you can use it to calculate additional bonuses'
+                    effects such as Vice President or find out base times that aren't found in online resources.</li>
+            </ul>
+            <h3>Click anywhere to continue using the app.</h3>
         </div>
-
-        <!-- Content will be dynamically loaded here -->
-        <div id="tab-content">
-            <p>Select a tab to get started!</p>
-        </div>
-
     </div>
+    <div class="tabs">
+        <div class="tab active" onclick="showSection('construction')">Construction</div>
+        <div class="tab" onclick="showSection('research')">Research</div>
+        <div class="tab" onclick="showSection('troop')">Troop</div>
+        <div class="tab" onclick="showSection('info')">Info</div>
+    </div>
+    <div class="container">
+        <div id="construction" class="section active">
+            <h2>Construction Time</h2>
+            <div class="form-row">
+                <div class="form-column">
+                    <label for="construction-day">Day:</label>
+                    <input type="number" id="construction-day" placeholder="0">
+                    <label for="construction-hour">Hour:</label>
+                    <input type="number" id="construction-hour" placeholder="0">
+                    <label for="construction-minute">Minute:</label>
+                    <input type="number" id="construction-minute" placeholder="0">
+                    <label for="construction-second">Second:</label>
+                    <input type="number" id="construction-second" placeholder="0">
+                </div>
+                <div class="form-column">
+                    <label for="construction-bonus">Construction Speed:</label>
+                    <input type="number" id="construction-bonus" placeholder="0.00">
+                    <label for="construction-pet-skill">Pet Skill:</label>
+                    <input type="number" id="construction-pet-skill" placeholder="0.00">
+                </div>
+            </div>
+            <div class="checkbox-row">
+                <label>
+                    Policy (20%)
+                    <input type="checkbox" id="construction-policy">
+                </label>
+                <label>
+                    Presidential Boost (10%)
+                    <input type="checkbox" id="construction-presidential">
+                </label>
+                <label>
+                    Vice President (10%)
+                    <input type="checkbox" id="construction-vp">
+                </label>
+            </div>
+            <button onclick="calculateTime('construction')">Calculate</button>
+            <button class="retrace" onclick="retraceTime('construction')">Retrace</button>
+            <button onclick="saveData('construction')">Save</button>
+            <p id="construction-result"></p>
+        </div>
 
+        <div id="research" class="section">
+            <h2>Research Time</h2>
+            <div class="form-row">
+                <div class="form-column">
+                    <label for="research-day">Day:</label>
+                    <input type="number" id="research-day" placeholder="0">
+                    <label for="research-hour">Hour:</label>
+                    <input type="number" id="research-hour" placeholder="0">
+                    <label for="research-minute">Minute:</label>
+                    <input type="number" id="research-minute" placeholder="0">
+                    <label for="research-second">Second:</label>
+                    <input type="number" id="research-second" placeholder="0">
+                </div>
+                <div class="form-column">
+                    <label for="research-bonus">Research Speed:</label>
+                    <input type="number" id="research-bonus" placeholder="0.00">
+                    <label for="research-pet-skill">Pet Skill:</label>
+                    <input type="number" id="research-pet-skill" placeholder="0.00">
+                </div>
+            </div>
+            <div class="checkbox-row">
+                <label>
+                    Presidential Boost (10%)
+                    <input type="checkbox" id="research-presidential">
+                </label>
+                <label>
+                    Vice President (10%)
+                    <input type="checkbox" id="research-vp">
+                </label>
+            </div>
+            <button onclick="calculateTime('research')">Calculate</button>
+            <button class="retrace" onclick="retraceTime('research')">Retrace</button>
+            <button onclick="saveData('research')">Save</button>
+            <p id="research-result"></p>
+        </div>
+
+        <div id="troop" class="section">
+            <h2>Troop Time</h2>
+            <div class="form-row">
+                <div class="form-column">
+                    <label for="troop-day">Day:</label>
+                    <input type="number" id="troop-day" placeholder="0">
+                    <label for="troop-hour">Hour:</label>
+                    <input type="number" id="troop-hour" placeholder="0">
+                    <label for="troop-minute">Minute:</label>
+                    <input type="number" id="troop-minute" placeholder="0">
+                    <label for="troop-second">Second:</label>
+                    <input type="number" id="troop-second" placeholder="0">
+                </div>
+                <div class="form-column">
+                    <label for="troop-bonus">Training Speed:</label>
+                    <input type="number" id="troop-bonus" placeholder="0.00">
+                    <label for="troop-pet-skill">Pet Skill:</label>
+                    <input type="number" id="troop-pet-skill" placeholder="0.00">
+                </div>
+            </div>
+            <div class="checkbox-row">
+                <label>
+                    Presidential Boost (30%)
+                    <input type="checkbox" id="troop-presidential">
+                </label>
+                <label>
+                    Minister of Education (50%)
+                    <input type="checkbox" id="troop-minister">
+                </label>
+                <label>
+                    Vice President (10%)
+                    <input type="checkbox" id="troop-vp">
+                </label>
+            </div>
+            <button onclick="calculateTime('troop')">Calculate</button>
+            <button class="retrace" onclick="retraceTime('troop')">Retrace</button>
+            <button onclick="saveData('troop')">Save</button>
+            <p id="troop-result"></p>
+        </div>
+
+        <div id="info" class="section">
+            <h2>Welcome to Whiteout Survival Speedup Calculator!</h2>
+            <p>
+                Hi, I am [INF] Riyeko from #1088 (formerly a proud [LEG] in 1091) who is a newbie in this game.
+                Over the short span that I was playing, I noticed that many people get confused about how speed bonuses
+                in Whiteout Survival work. Besides, even if one knows the math behind it, doing calculations for
+                future plans take a lot of time and manual arithmetics. Therefore, I decided to create this little web
+                app to help both myself and the game community to help with it. I hope it would ease the planning process
+                for you. ^^
+            </p>
+            <h3>Instructions</h3>
+            <ul>
+                <li>To look up the base times, visit <a href="https://www.whiteoutsurvival.wiki/">WoS Wiki</a> or <a href="https://whiteoutdata.com/">Whiteout Data</a>.</li>
+                <li>Enter the obtained base time to the GUI.</li>
+                <li>Enter your Speed Bonus information inside the game's "Power" menu. (format: 54.6, 89.42, etc.)</li>
+                <li>Enter your Pet Skill Bonus inside the game's "Pet Ability" menu. (format: 54.6, 89.42, etc.)</li>
+                <li>Check any bonuses' checkmarks that you plan to have when you are going to start the task (training, construction, etc.)</li>
+                <li>Click on "Calculate" button and the results will pop up under the button!</li>
+                <li>Click on "Retrace" button and your bonuses will be retraced to generate actual baseline time; so, you can use it to calculate additional bonuses'
+                    effects such as Vice President or find out base times that aren't found in online resources.</li>
+            </ul>
+        </div>
+    </div>
     <script>
-        function loadTab(page) {
-            // Fetch the selected HTML page and inject it into the tab-content div
-            fetch(page)
-                .then(response => response.text())
-                .then(data => document.getElementById('tab-content').innerHTML = data)
-                .catch(error => console.error('Error loading page:', error));
+        function showSection(section) {
+            const sections = document.querySelectorAll('.section');
+            const tabs = document.querySelectorAll('.tab');
+            sections.forEach(sec => sec.classList.remove('active'));
+            tabs.forEach(tab => tab.classList.remove('active'));
+            document.getElementById(section).classList.add('active');
+            document.querySelector(`.tab[onclick="showSection('${section}')"]`).classList.add('active');
         }
-    </script>
+    
+        function calculateTime(type) {
+            let day = parseInt(document.getElementById(type + '-day').value) || 0;
+            let hour = parseInt(document.getElementById(type + '-hour').value) || 0;
+            let minute = parseInt(document.getElementById(type + '-minute').value) || 0;
+            let second = parseInt(document.getElementById(type + '-second').value) || 0;
+            let bonus = parseFloat((document.getElementById(type + '-bonus').value) / 100) || 0;
+            let petSkill = parseFloat((document.getElementById(type + '-pet-skill').value / 100)) || 0;
+            let policy = document.getElementById(type + '-policy') ? (document.getElementById(type + '-policy').checked ? 0.2 : 0) : 0;
+            let presidential = document.getElementById(type + '-presidential').checked ? (type === 'troop' ? 0.3 : 0.1) : 0;
+            let vp = document.getElementById(type + '-vp') ? (document.getElementById(type + '-vp').checked ? 0.1 : 0) : 0;
+            let minister = document.getElementById(type + '-minister') ? (document.getElementById(type + '-minister').checked ? 0.5 : 0) : 0;
+    
+            let total_ticks_required = (day * 86400) + (hour * 3600) + (minute * 60) + second;
+            let total_bonus = 1 + bonus + petSkill + policy + presidential + vp + minister;
+            let tick_completion_time_with_bonuses = total_ticks_required / total_bonus;
+    
+            let resultDay = Math.floor(tick_completion_time_with_bonuses / 86400);
+            tick_completion_time_with_bonuses %= 86400;
+            let resultHour = Math.floor(tick_completion_time_with_bonuses / 3600);
+            tick_completion_time_with_bonuses %= 3600;
+            let resultMinute = Math.floor(tick_completion_time_with_bonuses / 60);
+            let resultSecond = Math.floor(tick_completion_time_with_bonuses % 60);
+    
+            let resultText = `Calculated time: ${resultDay}d, ${resultHour}h, ${resultMinute}m, ${resultSecond}s`;
+            document.getElementById(type + '-result').innerText = resultText;
+            document.getElementById(type + '-result').className = 'success';
+        }
+    
+        function retraceTime(type) {
+            let day = parseInt(document.getElementById(type + '-day').value) || 0;
+            let hour = parseInt(document.getElementById(type + '-hour').value) || 0;
+            let minute = parseInt(document.getElementById(type + '-minute').value) || 0;
+            let second = parseInt(document.getElementById(type + '-second').value) || 0;
+            let bonus = parseFloat((document.getElementById(type + '-bonus').value) / 100) || 0;
+            let petSkill = parseFloat((document.getElementById(type + '-pet-skill').value / 100)) || 0;
+            let policy = document.getElementById(type + '-policy') ? (document.getElementById(type + '-policy').checked ? 0.2 : 0) : 0;
+            let presidential = document.getElementById(type + '-presidential').checked ? (type === 'troop' ? 0.3 : 0.1) : 0;
+            let vp = document.getElementById(type + '-vp') ? (document.getElementById(type + '-vp').checked ? 0.1 : 0) : 0;
+            let minister = document.getElementById(type + '-minister') ? (document.getElementById(type + '-minister').checked ? 0.5 : 0) : 0;
+    
+            let total_ticks_with_bonuses = (day * 86400) + (hour * 3600) + (minute * 60) + second;
+            let total_bonus = 1 + bonus + petSkill + policy + presidential + vp + minister;
+            let base_ticks = total_ticks_with_bonuses * total_bonus;
+    
+            let resultDay = Math.floor(base_ticks / 86400);
+            base_ticks %= 86400;
+            let resultHour = Math.floor(base_ticks / 3600);
+            base_ticks %= 3600;
+            let resultMinute = Math.floor(base_ticks / 60);
+            let resultSecond = Math.floor(base_ticks % 60);
+    
+            let resultText = `Base time estimate: ${resultDay}d, ${resultHour}h, ${resultMinute}m, ${resultSecond}s`;
+            document.getElementById(type + '-result').innerText = resultText;
+            document.getElementById(type + '-result').className = 'base-time';
+        }
 
+        // Function to save user inputs for a specific section
+        function saveData(type) {
+            let data = {
+                day: document.getElementById(type + '-day').value || 0,
+                hour: document.getElementById(type + '-hour').value || 0,
+                minute: document.getElementById(type + '-minute').value || 0,
+                second: document.getElementById(type + '-second').value || 0,
+                bonus: document.getElementById(type + '-bonus').value || 0,
+                petSkill: document.getElementById(type + '-pet-skill').value || 0,
+                policy: document.getElementById(type + '-policy') ? document.getElementById(type + '-policy').checked : false,
+                presidential: document.getElementById(type + '-presidential').checked,
+                vp: document.getElementById(type + '-vp') ? document.getElementById(type + '-vp').checked : false,
+                minister: document.getElementById(type + '-minister') ? document.getElementById(type + '-minister').checked : false
+            };
+            localStorage.setItem(type + 'Data', JSON.stringify(data));
+            alert('Data saved for ' + type + '!');
+        }
+
+        // Function to load saved data for a specific section
+        function loadData(type) {
+            let savedData = JSON.parse(localStorage.getItem(type + 'Data'));
+            if (savedData) {
+                document.getElementById(type + '-day').value = savedData.day;
+                document.getElementById(type + '-hour').value = savedData.hour;
+                document.getElementById(type + '-minute').value = savedData.minute;
+                document.getElementById(type + '-second').value = savedData.second;
+                document.getElementById(type + '-bonus').value = savedData.bonus;
+                document.getElementById(type + '-pet-skill').value = savedData.petSkill;
+                if (document.getElementById(type + '-policy')) document.getElementById(type + '-policy').checked = savedData.policy;
+                document.getElementById(type + '-presidential').checked = savedData.presidential;
+                if (document.getElementById(type + '-vp')) document.getElementById(type + '-vp').checked = savedData.vp;
+                if (document.getElementById(type + '-minister')) document.getElementById(type + '-minister').checked = savedData.minister;
+            }
+        }
+    
+        document.addEventListener("DOMContentLoaded", function() {
+            // Check if the user has visited before
+            if (!localStorage.getItem('popupDisplayed')) {
+                // Show the pop-up
+                document.getElementById("popup").style.display = "block";
+                // Set a flag in local storage
+                localStorage.setItem('popupDisplayed', 'true');
+            }
+    
+            // Get the <span> element that closes the pop-up
+            var closeBtn = document.querySelector(".close-btn");
+    
+            // When the user clicks on <span> (x), close the pop-up
+            closeBtn.onclick = function() {
+                document.getElementById("popup").style.display = "none";
+            }
+    
+            // When the user clicks anywhere outside of the pop-up, close it
+            window.onclick = function(event) {
+                var popup = document.getElementById("popup");
+                if (event.target == popup) {
+                    popup.style.display = "none";
+                }
+            }
+
+            // Load saved data for each section on page load
+            loadData('construction');
+            loadData('research');
+            loadData('troop');
+        });
+    </script>
 </body>
 </html>
