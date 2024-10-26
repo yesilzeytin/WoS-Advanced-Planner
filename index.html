@@ -433,6 +433,8 @@
         <button onclick="closePlan()">Close Plan</button>
     </div>
     <script>
+        window.fetchedData = {};
+
         function showSection(section) {
             const sections = document.querySelectorAll('.section');
             const tabs = document.querySelectorAll('.tab');
@@ -566,8 +568,10 @@
                 const response = await fetch(`./data/${tabName}.json`);
                 const data = await response.json();
                 
+                // Store the fetched data globally
+                window.fetchedData[tabName] = data;
+                
                 console.log("Data fetched for tab:", tabName, data); // Log fetched data to ensure structure
-
                 displayItems(data, tabName);
             } catch (error) {
                 console.error("Error fetching data for tab:", tabName, error);
@@ -600,8 +604,8 @@
 
         // Add item to the Plan basket
         function addToPlan(tabName, itemName, level) {
-            // Retrieve the correct items array by referencing the items variable in scope
-            const fetchedItems = window.fetchedData[tabName] || []; // Assuming fetchedData holds data per tab
+            // Retrieve the correct items array by referencing the globally stored data
+            const fetchedItems = window.fetchedData[tabName] || [];
 
             const itemToAdd = fetchedItems.find(i => i.name === itemName && i.level === level);
             
