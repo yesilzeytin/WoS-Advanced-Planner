@@ -697,7 +697,8 @@
                     <p>Power: ${item.power * quantity}</p>
                     <p>Adjusted Time (per unit): ${adjustedTime.days}d ${adjustedTime.hours}h ${adjustedTime.minutes}m ${adjustedTime.seconds}s</p>
                     <p>Cost per unit: Meat: ${item.build_cost.meat}, Wood: ${item.build_cost.wood}, Coal: ${item.build_cost.coal}, Iron: ${item.build_cost.iron}</p>
-                    <p>Quantity: <input type="number" value="${quantity}" min="1" oninput="updateTroopQuantity('${item.name}', '${item.level}', this.value)"></p>
+                    <p>Quantity: <input type="number" id="${item.name}-${item.level}-quantity" value="${quantity}" min="1" style="width: 60px;">
+                    <button onclick="updateTroopQuantity('${item.name}', '${item.level}')">Update</button></p>
                     <button onclick="removeFromPlan('${item.name}', '${item.level}')">Remove</button>
                 `;
                 planContent.appendChild(itemDiv);
@@ -713,12 +714,15 @@
             `;
         }
 
-        // Dynamically updates troop quantity and recalculates the summary in real-time
-        function updateTroopQuantity(name, level, newQuantity) {
+        // Update quantity when "Update" button is clicked
+        function updateTroopQuantity(name, level) {
+            const quantityInput = document.getElementById(`${name}-${level}-quantity`);
+            const newQuantity = parseInt(quantityInput.value) || 1; // Default to 1 if invalid input
+
             const item = plan.items.find(i => i.name === name && i.level === level);
             if (item && item.type === 'troop') {
-                item.quantity = parseInt(newQuantity) || 1; // Set to 1 if invalid input
-                updatePlanDisplay(); // Refresh the display dynamically with updated times and resources
+                item.quantity = newQuantity; // Update the quantity for the troop
+                updatePlanDisplay(); // Refresh the display to reflect updated quantities
             }
         }
 
