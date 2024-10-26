@@ -1,0 +1,20 @@
+[
+    {
+        "name": "Rookie Lancer (T1)",
+        "level": "1",
+        "type": "lancer",
+        "build_cost": {
+            "meat": 99,
+            "wood": 99,
+            "coal": 99,
+            "iron": 9
+        },
+        "time": {
+            "days": 0,
+            "hours": 0,
+            "minutes": 0,
+            "seconds": 9
+        },
+        "power": 3
+    }
+]
