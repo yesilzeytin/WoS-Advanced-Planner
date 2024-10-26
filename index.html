@@ -543,8 +543,10 @@
 
         // Show specific tab content and hide others
         function showTab(tabName) {
-            // Fetch and display content based on the tabName (e.g., building, research_g)
-            fetchData(tabName);
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => section.classList.remove('active')); // Hide all sections
+
+            fetchData(tabName); // Load JSON data for the selected tab
         }
 
         // Toggle Plan pop-up visibility
@@ -594,8 +596,10 @@
 
         // Add item to the Plan basket
         function addToPlan(tabName, itemName, level) {
-            // Add item logic here
-            // Update Plan and refresh display with new item and calculations
+            const item = { tabName, itemName, level };
+            plan.items.push(item); // Add item to plan array
+
+            updatePlanDisplay(); // Update the plan pop-up display
         }
 
         function updatePlanDisplay() {
