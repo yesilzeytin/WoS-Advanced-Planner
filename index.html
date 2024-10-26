@@ -583,6 +583,7 @@
             const content = document.getElementById('content');
             content.innerHTML = ''; // Clear previous content
 
+            // Retrieve saved speedups from localStorage
             const constructionData = JSON.parse(localStorage.getItem('constructionData')) || {};
             const researchData = JSON.parse(localStorage.getItem('researchData')) || {};
             const troopData = JSON.parse(localStorage.getItem('troopData')) || {};
@@ -601,8 +602,10 @@
                     speedup = trainingSpeedup;
                 }
 
+                // Apply speedup to calculate adjusted time
                 const adjustedTime = getAdjustedTime(item.time, speedup);
 
+                // Display each item with the adjusted time
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'item';
 
@@ -665,6 +668,7 @@
             plan.items.forEach(item => {
                 if (!item.time) return;
 
+                // Apply correct speedup based on item type
                 const speedup = item.type === 'building' ? constructionSpeedup :
                                 item.type === 'research' ? researchSpeedup : trainingSpeedup;
 
@@ -709,12 +713,12 @@
             `;
         }
 
-        // Dynamically updates troop quantity and recalculates the summary
+        // Dynamically updates troop quantity and recalculates the summary in real-time
         function updateTroopQuantity(name, level, newQuantity) {
             const item = plan.items.find(i => i.name === name && i.level === level);
             if (item && item.type === 'troop') {
                 item.quantity = parseInt(newQuantity) || 1; // Set to 1 if invalid input
-                updatePlanDisplay(); // Refresh the display dynamically
+                updatePlanDisplay(); // Refresh the display dynamically with updated times and resources
             }
         }
 
