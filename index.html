@@ -654,8 +654,18 @@
         }
 
         function removeFromPlan(itemName, level) {
-            // Remove item logic here
-            updatePlanDisplay();
+            // Find the index of the item in the plan array
+            const itemIndex = plan.items.findIndex(item => item.name === itemName && item.level === level);
+
+            // If the item exists in the plan, remove it
+            if (itemIndex !== -1) {
+                plan.items.splice(itemIndex, 1); // Remove item from plan array
+
+                // Optionally, you could also update total resources, time, and power here if needed
+                updatePlanDisplay(); // Refresh the plan display
+            } else {
+                console.error(`Item with name ${itemName} and level ${level} not found in plan.`);
+            }
         }
     
         document.addEventListener("DOMContentLoaded", function() {
