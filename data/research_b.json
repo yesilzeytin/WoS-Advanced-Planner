@@ -9,10 +9,14 @@
             "iron": 470,
             "steel": 560
         },
-        "time": "0d 00:03:36",
+        "time": {
+            "days": 0,
+            "hours": 0,
+            "minutes": 3,
+            "seconds": 36
+        },
         "power": 5760
     },
-
     {
         "name": "Regimental Expansion I",
         "level": "2",
@@ -23,7 +27,12 @@
             "iron": 660,
             "steel": 780
         },
-        "time": "0d 00:05:24",
+        "time": {
+            "days": 0,
+            "hours": 0,
+            "minutes": 5,
+            "seconds": 24
+        },
         "power": 5760
     }
 ]
