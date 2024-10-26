@@ -671,7 +671,7 @@
                 const adjustedTime = getAdjustedTime(item.time, speedup);
                 const quantity = item.quantity || 1; // Default to 1 if not defined
 
-                // Update total resources and power based on quantity
+                // Calculate total resources and power based on quantity
                 totalResources.meat += (item.build_cost.meat || 0) * quantity;
                 totalResources.wood += (item.build_cost.wood || 0) * quantity;
                 totalResources.coal += (item.build_cost.coal || 0) * quantity;
@@ -679,6 +679,11 @@
                 totalResources.fire_crystals += (item.build_cost.fire_crystals || 0) * quantity;
                 totalResources.steel += (item.build_cost.steel || 0) * quantity;
                 totalPower += (item.power || 0) * quantity;
+
+                // Accumulate adjusted time based on quantity
+                for (let i = 0; i < quantity; i++) {
+                    totalTime = accumulateTotalTime(totalTime, adjustedTime);
+                }
 
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'plan-item';
@@ -688,15 +693,13 @@
                     <p>Power: ${item.power * quantity}</p>
                     <p>Adjusted Time (per unit): ${adjustedTime.days}d ${adjustedTime.hours}h ${adjustedTime.minutes}m ${adjustedTime.seconds}s</p>
                     <p>Cost per unit: Meat: ${item.build_cost.meat}, Wood: ${item.build_cost.wood}, Coal: ${item.build_cost.coal}, Iron: ${item.build_cost.iron}</p>
-                    <p>Quantity: <input type="number" value="${quantity}" min="1" onchange="updateTroopQuantity('${item.name}', '${item.level}', this.value)"></p>
+                    <p>Quantity: <input type="number" value="${quantity}" min="1" oninput="updateTroopQuantity('${item.name}', '${item.level}', this.value)"></p>
                     <button onclick="removeFromPlan('${item.name}', '${item.level}')">Remove</button>
                 `;
                 planContent.appendChild(itemDiv);
-
-                totalTime = accumulateTotalTime(totalTime, adjustedTime, quantity);
             });
 
-            // Update summary as before
+            // Update summary display with total adjusted time and resources
             const planSummary = document.getElementById('plan-summary');
             planSummary.innerHTML = `
                 <h3>Total Summary</h3>
@@ -706,12 +709,12 @@
             `;
         }
 
-        // New function to update quantity in the plan
+        // Dynamically updates troop quantity and recalculates the summary
         function updateTroopQuantity(name, level, newQuantity) {
             const item = plan.items.find(i => i.name === name && i.level === level);
             if (item && item.type === 'troop') {
-                item.quantity = parseInt(newQuantity) || 1;
-                updatePlanDisplay();
+                item.quantity = parseInt(newQuantity) || 1; // Set to 1 if invalid input
+                updatePlanDisplay(); // Refresh the display dynamically
             }
         }
 
