@@ -562,9 +562,16 @@
 
         // Fetch data from the respective JSON file and display it in the content area
         async function fetchData(tabName) {
-            const response = await fetch(`./data/${tabName}.json`);
-            const data = await response.json();
-            displayItems(data, tabName);
+            try {
+                const response = await fetch(`./data/${tabName}.json`);
+                const data = await response.json();
+                
+                console.log("Data fetched for tab:", tabName, data); // Log fetched data to ensure structure
+
+                displayItems(data, tabName);
+            } catch (error) {
+                console.error("Error fetching data for tab:", tabName, error);
+            }
         }
 
         // Display items in the content area
@@ -573,6 +580,8 @@
             content.innerHTML = ''; // Clear previous content
 
             items.forEach(item => {
+                console.log("Displaying item:", item); // Log each item to ensure completeness
+
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'item';
 
@@ -585,21 +594,25 @@
                     <button onclick="addToPlan('${tabName}', '${item.name}', ${item.level})">Add</button>
                 `;
 
-                if (tabName.startsWith('troops')) {
-                    // If it's a troop type, add quantity input
-                    itemDiv.innerHTML += `<input type="number" id="${item.name}-qty" min="1" placeholder="Quantity" />`;
-                }
-
                 content.appendChild(itemDiv);
             });
         }
 
         // Add item to the Plan basket
         function addToPlan(tabName, itemName, level) {
-            const item = { tabName, itemName, level };
-            plan.items.push(item); // Add item to plan array
+            const item = plan.items.find(i => i.name === itemName && i.level === level);
 
-            updatePlanDisplay(); // Update the plan pop-up display
+            if (item) {
+                console.log("Adding item to plan:", item); // Log to ensure item structure
+                
+                // Ensure time structure is fully defined
+                item.time = item.time || { days: 0, hours: 0, minutes: 0, seconds: 0 };
+                plan.items.push(item); // Add to plan array
+
+                updatePlanDisplay(); // Update the plan pop-up display
+            } else {
+                console.error("Item not found in fetched data:", itemName, level);
+            }
         }
 
         function updatePlanDisplay() {
@@ -608,7 +621,9 @@
             planContent.innerHTML = ''; // Clear existing content
 
             plan.items.forEach(item => {
-                const itemDiv = document.createElement('div');
+                if (!item.time) return; // Skip if time property is missing
+        
+                const { days, hours, minutes, seconds } = item.time;
                 itemDiv.className = 'plan-item';
                 itemDiv.innerHTML = `
                     <h4>${item.name} (Level ${item.level})</h4>
