@@ -623,34 +623,74 @@
         }
 
         function updatePlanDisplay() {
-            // Display each item in the Plan along with total cost and time calculations
             const planContent = document.getElementById('plan-content');
             planContent.innerHTML = ''; // Clear existing content
+
+            // Retrieve saved bonuses from localStorage or set defaults
+            const constructionSpeedup = parseFloat(localStorage.getItem('constructionSpeedup')) || 0;
+            const researchSpeedup = parseFloat(localStorage.getItem('researchSpeedup')) || 0;
+            const trainingSpeedup = parseFloat(localStorage.getItem('trainingSpeedup')) || 0;
+
+            let totalResources = { meat: 0, wood: 0, coal: 0, iron: 0, fire_crystals: 0, steel: 0 };
+            let totalTime = { days: 0, hours: 0, minutes: 0, seconds: 0 };
+            let totalPower = 0;
 
             plan.items.forEach(item => {
                 if (!item.time) return; // Skip if time property is missing
 
-                // Define itemDiv here
+                // Determine the speedup based on item type
+                let speedup = 0;
+                if (item.type === 'building') {
+                    speedup = constructionSpeedup;
+                } else if (item.type === 'research') {
+                    speedup = researchSpeedup;
+                } else if (item.type === 'troop') {
+                    speedup = trainingSpeedup;
+                }
+
+                // Apply speedup to time
+                const adjustedTime = getAdjustedTime(item.time, speedup);
+
+                // Update total resources and power
+                totalResources.meat += item.build_cost.meat || 0;
+                totalResources.wood += item.build_cost.wood || 0;
+                totalResources.coal += item.build_cost.coal || 0;
+                totalResources.iron += item.build_cost.iron || 0;
+                totalResources.fire_crystals += item.build_cost.fire_crystals || 0;
+                totalResources.steel += item.build_cost.steel || 0;
+                totalPower += item.power || 0;
+
+                // Display each item with adjusted time
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'plan-item';
                 itemDiv.innerHTML = `
                     <h4>${item.name} (Level ${item.level})</h4>
                     <p>Power: ${item.power}</p>
-                    <p>Time: ${item.time.days}d ${item.time.hours}h ${item.time.minutes}m ${item.time.seconds}s</p>
+                    <p>Adjusted Time: ${adjustedTime.days}d ${adjustedTime.hours}h ${adjustedTime.minutes}m ${adjustedTime.seconds}s</p>
                     <p>Cost: Meat: ${item.build_cost.meat}, Wood: ${item.build_cost.wood}, Coal: ${item.build_cost.coal}, Iron: ${item.build_cost.iron}</p>
                     <button onclick="removeFromPlan('${item.name}', '${item.level}')">Remove</button>
                 `;
                 planContent.appendChild(itemDiv);
+
+                // Accumulate total adjusted time
+                totalTime = accumulateTotalTime(totalTime, adjustedTime);
             });
 
-            // Update total cost and power
+            // Update total summary in the Plan
             const planSummary = document.getElementById('plan-summary');
             planSummary.innerHTML = `
                 <h3>Total Summary</h3>
-                <p>Total Time: ${plan.totalTime.days}d ${plan.totalTime.hours}h ${plan.totalTime.minutes}m ${plan.totalTime.seconds}s</p>
-                <p>Total Power: ${plan.totalPower}</p>
-                <p>Total Resources: Meat: ${plan.totalResources.meat}, Wood: ${plan.totalResources.wood}, Coal: ${plan.totalResources.coal}, Iron: ${plan.totalResources.iron}</p>
+                <p>Total Adjusted Time: ${totalTime.days}d ${totalTime.hours}h ${totalTime.minutes}m ${totalTime.seconds}s</p>
+                <p>Total Power: ${totalPower}</p>
+                <p>Total Resources: Meat: ${totalResources.meat}, Wood: ${totalResources.wood}, Coal: ${totalResources.coal}, Iron: ${totalResources.iron}</p>
             `;
+        }
+
+        // Helper function to accumulate total adjusted time
+        function accumulateTotalTime(totalTime, adjustedTime) {
+            const totalSeconds = ((totalTime.days * 24 * 3600) + (totalTime.hours * 3600) + (totalTime.minutes * 60) + totalTime.seconds)
+                            + ((adjustedTime.days * 24 * 3600) + (adjustedTime.hours * 3600) + (adjustedTime.minutes * 60) + adjustedTime.seconds);
+            return getAdjustedTime({ days: 0, hours: 0, minutes: 0, seconds: totalSeconds }, 0);
         }
 
         function removeFromPlan(itemName, level) {
@@ -666,6 +706,25 @@
             } else {
                 console.error(`Item with name ${itemName} and level ${level} not found in plan.`);
             }
+        }
+
+        function getAdjustedTime(time, speedup) {
+            // Calculate the adjusted time based on the speedup bonus
+            const totalSeconds = ((time.days * 24 * 3600) + (time.hours * 3600) + (time.minutes * 60) + time.seconds);
+            const adjustedSeconds = totalSeconds / (1 + speedup / 100);
+
+            // Convert adjusted seconds back to days, hours, minutes, and seconds
+            const adjustedDays = Math.floor(adjustedSeconds / (24 * 3600));
+            const adjustedHours = Math.floor((adjustedSeconds % (24 * 3600)) / 3600);
+            const adjustedMinutes = Math.floor((adjustedSeconds % 3600) / 60);
+            const adjustedSecondsFinal = Math.floor(adjustedSeconds % 60);
+
+            return {
+                days: adjustedDays,
+                hours: adjustedHours,
+                minutes: adjustedMinutes,
+                seconds: adjustedSecondsFinal
+            };
         }
     
         document.addEventListener("DOMContentLoaded", function() {
