@@ -559,7 +559,7 @@
 
         // Fetch data from the respective JSON file and display it in the content area
         async function fetchData(tabName) {
-            const response = await fetch(`./data/${tabName}_processed.json`);
+            const response = await fetch(`./data/${tabName}.json`);
             const data = await response.json();
             displayItems(data, tabName);
         }
