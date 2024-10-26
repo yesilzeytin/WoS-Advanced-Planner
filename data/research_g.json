@@ -9,10 +9,14 @@
             "iron": 110,
             "steel": 140
         },
-        "time": "0d 00:00:35",
+        "time": {
+            "days": 0,
+            "hours": 0,
+            "minutes": 0,
+            "seconds": 35
+        },
         "power": 2000
     },
-
     {
         "name": "Tool Enhancement I",
         "level": "2",
@@ -23,7 +27,12 @@
             "iron": 160,
             "steel": 190
         },
-        "time": "0d 00:00:52",
+        "time": {
+            "days": 0,
+            "hours": 0,
+            "minutes": 0,
+            "seconds": 52
+        },
         "power": 2000
     }
 ]
