@@ -9,10 +9,14 @@
             "iron": 200,
             "steel": 240
         },
-        "time": "0d 00:00:27",
+        "time": {
+            "days": 0,
+            "hours": 0,
+            "minutes": 0,
+            "seconds": 27
+        },
         "power": 1000
     },
-
     {
         "name": "Food Gathering I",
         "level": "2",
@@ -23,7 +27,12 @@
             "iron": 280,
             "steel": 320
         },
-        "time": "0d 00:00:40",
+        "time": {
+            "days": 0,
+            "hours": 0,
+            "minutes": 0,
+            "seconds": 40
+        },
         "power": 1000
     }
 ]
