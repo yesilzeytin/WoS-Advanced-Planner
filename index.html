@@ -583,21 +583,40 @@
             const content = document.getElementById('content');
             content.innerHTML = ''; // Clear previous content
 
-            items.forEach(item => {
-                console.log("Displaying item:", item); // Log each item to ensure completeness
+            // Retrieve saved speedups
+            const constructionData = JSON.parse(localStorage.getItem('constructionData')) || {};
+            const researchData = JSON.parse(localStorage.getItem('researchData')) || {};
+            const troopData = JSON.parse(localStorage.getItem('troopData')) || {};
 
+            const constructionSpeedup = parseFloat(constructionData.bonus) || 0;
+            const researchSpeedup = parseFloat(researchData.bonus) || 0;
+            const trainingSpeedup = parseFloat(troopData.bonus) || 0;
+
+            items.forEach(item => {
+                let speedup = 0;
+
+                // Determine speedup based on item type
+                if (tabName === 'building') {
+                    speedup = constructionSpeedup;
+                } else if (tabName.startsWith('research')) {
+                    speedup = researchSpeedup;
+                } else if (tabName.startsWith('troops')) {
+                    speedup = trainingSpeedup;
+                }
+
+                // Calculate adjusted time
+                const adjustedTime = getAdjustedTime(item.time, speedup);
+
+                // Display item with adjusted time
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'item';
-
-                // Construct item details with the correct level in the onclick handler
                 itemDiv.innerHTML = `
                     <h3>${item.name} (Level ${item.level})</h3>
                     <p>Power: ${item.power}</p>
-                    <p>Time: ${item.time.days}d ${item.time.hours}h ${item.time.minutes}m ${item.time.seconds}s</p>
+                    <p>Adjusted Time: ${adjustedTime.days}d ${adjustedTime.hours}h ${adjustedTime.minutes}m ${adjustedTime.seconds}s</p>
                     <p>Cost: Meat: ${item.build_cost.meat}, Wood: ${item.build_cost.wood}, Coal: ${item.build_cost.coal}, Iron: ${item.build_cost.iron}</p>
                     <button onclick="addToPlan('${tabName}', '${item.name}', '${item.level}')">Add</button>
                 `;
-
                 content.appendChild(itemDiv);
             });
         }
