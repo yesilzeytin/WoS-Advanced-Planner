@@ -631,6 +631,10 @@
             const researchSpeedup = parseFloat(localStorage.getItem('researchSpeedup')) || 0;
             const trainingSpeedup = parseFloat(localStorage.getItem('trainingSpeedup')) || 0;
 
+            console.log("Construction Speedup:", constructionSpeedup); // Log for verification
+            console.log("Research Speedup:", researchSpeedup);
+            console.log("Training Speedup:", trainingSpeedup);
+
             let totalResources = { meat: 0, wood: 0, coal: 0, iron: 0, fire_crystals: 0, steel: 0 };
             let totalTime = { days: 0, hours: 0, minutes: 0, seconds: 0 };
             let totalPower = 0;
