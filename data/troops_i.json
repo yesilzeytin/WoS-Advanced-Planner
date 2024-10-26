@@ -1,0 +1,38 @@
+[
+    {
+        "name": "Rookie Infantry (T1)",
+        "level": "1",
+        "type": "infantry",
+        "build_cost": {
+            "meat": 36,
+            "wood": 27,
+            "coal": 7,
+            "iron": 2
+        },
+        "time": {
+            "days": 0,
+            "hours": 0,
+            "minutes": 0,
+            "seconds": 9
+        },
+        "power": 3
+    },
+    {
+        "name": "Trained Infantry (T2)",
+        "level": "2",
+        "type": "infantry",
+        "build_cost": {
+            "meat": 58,
+            "wood": 44,
+            "coal": 10,
+            "iron": 3
+        },
+        "time": {
+            "days": 0,
+            "hours": 0,
+            "minutes": 0,
+            "seconds": 15
+        },
+        "power": 4
+    }
+]
