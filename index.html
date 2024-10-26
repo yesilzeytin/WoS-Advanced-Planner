@@ -269,6 +269,13 @@
         <div class="tab" onclick="showSection('research')">Research</div>
         <div class="tab" onclick="showSection('troop')">Troop</div>
         <div class="tab" onclick="showSection('info')">Info</div>
+        <button class="tab" onclick="showTab('building')">Building</button>
+        <button class="tab" onclick="showTab('research_g')">Research (Growth)</button>
+        <button class="tab" onclick="showTab('research_e')">Research (Economy)</button>
+        <button class="tab" onclick="showTab('research_b')">Research (Battle)</button>
+        <button class="tab" onclick="showTab('troops_i')">Troops (Infantry)</button>
+        <button class="tab" onclick="showTab('troops_l')">Troops (Lancer)</button>
+        <button class="tab" onclick="showTab('troops_m')">Troops (Marksman)</button>
     </div>
     <div class="container">
         <div id="construction" class="section active">
@@ -410,6 +417,20 @@
             </ul>
         </div>
     </div>
+    <!-- Floating Plan Button -->
+    <div id="plan-button" onclick="togglePlan()">Plan</div>
+
+    <!-- Plan Basket Pop-up -->
+    <div id="plan-popup" style="display:none;">
+        <h2>Your Plan</h2>
+        <div id="plan-content">
+            <!-- Items will be added here dynamically -->
+        </div>
+        <div id="plan-summary">
+            <!-- Summary calculations will be added here dynamically -->
+        </div>
+        <button onclick="closePlan()">Close Plan</button>
+    </div>
     <script>
         function showSection(section) {
             const sections = document.querySelectorAll('.section');
@@ -509,6 +530,104 @@
                 if (document.getElementById(type + '-vp')) document.getElementById(type + '-vp').checked = savedData.vp;
                 if (document.getElementById(type + '-minister')) document.getElementById(type + '-minister').checked = savedData.minister;
             }
+        }
+
+         // Placeholder data structure to hold Plan items
+         const plan = {
+            items: [],
+            totalTime: { days: 0, hours: 0, minutes: 0, seconds: 0 },
+            totalPower: 0,
+            totalResources: { meat: 0, wood: 0, coal: 0, iron: 0, fire_crystals: 0, steel: 0 }
+        };
+
+        // Show specific tab content and hide others
+        function showTab(tabName) {
+            // Fetch and display content based on the tabName (e.g., building, research_g)
+            fetchData(tabName);
+        }
+
+        // Toggle Plan pop-up visibility
+        function togglePlan() {
+            const planPopup = document.getElementById('plan-popup');
+            planPopup.style.display = planPopup.style.display === 'none' ? 'block' : 'none';
+            updatePlanDisplay();
+        }
+
+        function closePlan() {
+            document.getElementById('plan-popup').style.display = 'none';
+        }
+
+        // Fetch data from the respective JSON file and display it in the content area
+        async function fetchData(tabName) {
+            const response = await fetch(`./data/${tabName}_processed.json`);
+            const data = await response.json();
+            displayItems(data, tabName);
+        }
+
+        // Display items in the content area
+        function displayItems(items, tabName) {
+            const content = document.getElementById('content');
+            content.innerHTML = ''; // Clear previous content
+
+            items.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'item';
+
+                // Construct item details
+                itemDiv.innerHTML = `
+                    <h3>${item.name} (Level ${item.level})</h3>
+                    <p>Power: ${item.power}</p>
+                    <p>Time: ${item.time.days}d ${item.time.hours}h ${item.time.minutes}m ${item.time.seconds}s</p>
+                    <p>Cost: Meat: ${item.build_cost.meat}, Wood: ${item.build_cost.wood}, Coal: ${item.build_cost.coal}, Iron: ${item.build_cost.iron}</p>
+                    <button onclick="addToPlan('${tabName}', '${item.name}', ${item.level})">Add</button>
+                `;
+
+                if (tabName.startsWith('troops')) {
+                    // If it's a troop type, add quantity input
+                    itemDiv.innerHTML += `<input type="number" id="${item.name}-qty" min="1" placeholder="Quantity" />`;
+                }
+
+                content.appendChild(itemDiv);
+            });
+        }
+
+        // Add item to the Plan basket
+        function addToPlan(tabName, itemName, level) {
+            // Add item logic here
+            // Update Plan and refresh display with new item and calculations
+        }
+
+        function updatePlanDisplay() {
+            // Display each item in the Plan along with total cost and time calculations
+            const planContent = document.getElementById('plan-content');
+            planContent.innerHTML = ''; // Clear existing content
+
+            plan.items.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'plan-item';
+                itemDiv.innerHTML = `
+                    <h4>${item.name} (Level ${item.level})</h4>
+                    <p>Power: ${item.power}</p>
+                    <p>Time: ${item.time.days}d ${item.time.hours}h ${item.time.minutes}m ${item.time.seconds}s</p>
+                    <p>Cost: Meat: ${item.build_cost.meat}, Wood: ${item.build_cost.wood}, Coal: ${item.build_cost.coal}, Iron: ${item.build_cost.iron}</p>
+                    <button onclick="removeFromPlan('${item.name}', ${item.level})">Remove</button>
+                `;
+                planContent.appendChild(itemDiv);
+            });
+
+            // Update total cost and power
+            const planSummary = document.getElementById('plan-summary');
+            planSummary.innerHTML = `
+                <h3>Total Summary</h3>
+                <p>Total Time: ${plan.totalTime.days}d ${plan.totalTime.hours}h ${plan.totalTime.minutes}m ${plan.totalTime.seconds}s</p>
+                <p>Total Power: ${plan.totalPower}</p>
+                <p>Total Resources: Meat: ${plan.totalResources.meat}, Wood: ${plan.totalResources.wood}, Coal: ${plan.totalResources.coal}, Iron: ${plan.totalResources.iron}</p>
+            `;
+        }
+
+        function removeFromPlan(itemName, level) {
+            // Remove item logic here
+            updatePlanDisplay();
         }
     
         document.addEventListener("DOMContentLoaded", function() {
