@@ -630,20 +630,21 @@
             const itemToAdd = fetchedItems.find(i => i.name === itemName && i.level === level);
 
             if (itemToAdd) {
-                const existingItem = plan.items.find(i => i.name === itemName && i.level === level);
+                console.log("Adding item to plan:", itemToAdd);
 
-                if (isTroop && existingItem) {
-                    // Increment quantity for existing troops
+                const existingItem = plan.items.find(i => i.name === itemToAdd.name && i.level === itemToAdd.level);
+
+                if (existingItem && itemToAdd.type !== 'troop') {
+                    console.log(`Item ${itemToAdd.name} (Level ${itemToAdd.level}) already in plan (non-troop), skipping add.`);
+                    return;
+                } else if (existingItem && itemToAdd.type === 'troop') {
                     existingItem.quantity += quantity;
-                } else if (isTroop) {
-                    // Add new troop item with specified quantity
-                    plan.items.push({ ...itemToAdd, quantity });
-                } else if (!existingItem) {
-                    // Add unique building/research with quantity 1
-                    plan.items.push({ ...itemToAdd, quantity: 1 });
+                } else {
+                    itemToAdd.quantity = quantity;
+                    plan.items.push(itemToAdd);
                 }
 
-                updatePlanDisplay(); // Refresh the plan display
+                updatePlanDisplay();
             } else {
                 console.error("Item not found in fetched data:", itemName, level);
             }
@@ -697,8 +698,8 @@
                     <p>Power: ${item.power * quantity}</p>
                     <p>Adjusted Time (per unit): ${adjustedTime.days}d ${adjustedTime.hours}h ${adjustedTime.minutes}m ${adjustedTime.seconds}s</p>
                     <p>Cost per unit: Meat: ${item.build_cost.meat}, Wood: ${item.build_cost.wood}, Coal: ${item.build_cost.coal}, Iron: ${item.build_cost.iron}</p>
-                    <p>Quantity: <input type="number" id="${item.name}-${item.level}-quantity" value="${quantity}" min="1" style="width: 60px;">
-                    <button onclick="updateTroopQuantity('${item.name}', '${item.level}')">Update</button></p>
+                    ${item.type === 'troop' ? `<p>Quantity: <input type="number" id="${item.name}-${item.level}-quantity" value="${quantity}" min="1" style="width: 60px;">
+                    <button onclick="updateTroopQuantity('${item.name}', '${item.level}')">Update</button></p>` : ''}
                     <button onclick="removeFromPlan('${item.name}', '${item.level}')">Remove</button>
                 `;
                 planContent.appendChild(itemDiv);
