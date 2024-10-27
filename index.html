@@ -693,6 +693,8 @@
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'plan-item';
 
+                console.log("item.type before button render:", item.type)
+
                 itemDiv.innerHTML = `
                     <h4>${item.name} (Level ${item.level})</h4>
                     <p>Power: ${item.power * quantity}</p>
