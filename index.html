@@ -614,7 +614,7 @@
                     <p>Power: ${item.power}</p>
                     <p>Adjusted Time: ${adjustedTime.days}d ${adjustedTime.hours}h ${adjustedTime.minutes}m ${adjustedTime.seconds}s</p>
                     <p>Cost: Meat: ${item.build_cost.meat}, Wood: ${item.build_cost.wood}, Coal: ${item.build_cost.coal}, Iron: ${item.build_cost.iron}</p>
-                    ${tabName.startsWith('troops') ? `<input type="number" id="${item.name}-quantity" min="1" placeholder="Quantity" style="width: 50px;">` : ''}
+                    ${tabName.startsWith('troops') ? `<input type="number" id="${item.name}-quantity" min="1" placeholder="Quantity" style="width: 50px;" oninput="this.value = this.value.replace(/[^0-9]/g, ''); if (this.value < 1) this.value = 1;">` : ''}
                     <button onclick="addToPlan('${tabName}', '${item.name}', '${item.level}')">Add</button>
                 `;
                 content.appendChild(itemDiv);
