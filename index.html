@@ -696,7 +696,12 @@
                     <p>Adjusted Time (per unit): ${adjustedTime.days}d ${adjustedTime.hours}h ${adjustedTime.minutes}m ${adjustedTime.seconds}s</p>
                     <p>Cost per unit: Meat: ${item.build_cost.meat}, Wood: ${item.build_cost.wood}, Coal: ${item.build_cost.coal}, Iron: ${item.build_cost.iron}</p>
                     ${['infantry', 'lancer', 'marksman'].includes(item.type) ? `
-                        <p>Quantity: <input type="number" id="${item.name}-${item.level}-quantity" value="${quantity}" min="1" style="width: 60px;">
+                        <p>Quantity: 
+                        <input type="number" id="${item.name}-${item.level}-quantity" 
+                            value="${quantity}" 
+                            min="1" 
+                            style="width: 60px;"
+                            oninput="if (this.value < 1) this.value = 1;">
                         <button onclick="updateTroopQuantity('${item.name}', '${item.level}')">Update</button></p>
                     ` : ''}
                     <button onclick="removeFromPlan('${item.name}', '${item.level}')">Remove</button>
