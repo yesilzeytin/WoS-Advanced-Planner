@@ -719,7 +719,7 @@
             const newQuantity = parseInt(quantityInput.value) || 1; // Default to 1 if invalid input
 
             const item = plan.items.find(i => i.name === name && i.level === level);
-            if (item && item.type === 'troop') {
+            if (item && ['infantry', 'lancer', 'marksman'].includes(item.type)) {
                 item.quantity = newQuantity; // Update the quantity for the troop
                 updatePlanDisplay(); // Refresh the display to reflect updated quantities
             }
