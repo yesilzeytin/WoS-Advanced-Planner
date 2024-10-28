@@ -701,7 +701,7 @@
                             value="${quantity}" 
                             min="1" 
                             style="width: 60px;"
-                            oninput="if (this.value < 1) this.value = 1;">
+                            oninput="this.value = this.value.replace(/[^0-9]/g, ''); if (this.value < 1) this.value = 1;">
                         <button onclick="updateTroopQuantity('${item.name}', '${item.level}')">Update</button></p>
                     ` : ''}
                     <button onclick="removeFromPlan('${item.name}', '${item.level}')">Remove</button>
